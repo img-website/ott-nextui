@@ -1,10 +1,18 @@
+"use client"
 import NavbarAdmin from "@/components/navbarAdmin";
 import SidebarAdmin from "@/components/sidebarAdmin";
 import { ScrollShadow } from "@nextui-org/scroll-shadow";
+import { useRouter } from "next/navigation";
 
 export default function AdminLayout({
 	children,
+	// modal
 }) {
+	const router = useRouter();
+	if (true) {
+		router.push("/admin");
+		return null;
+	}
 	return (
 		<div className="flex h-dvh min-h-svh bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-white overflow-hidden relative lg:pl-5">
 			<SidebarAdmin />

@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { ChevronDownIcon, PlusIcon, SearchIcon, VerticalDotsIcon } from '@/components/icons';
+import { ChevronDownIcon, DeleteIcon, EditIcon, PlusIcon, SearchIcon, TrendingIcon, VerticalDotsIcon } from '@/components/icons';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
 import { Input } from '@nextui-org/input';
@@ -9,279 +9,146 @@ import { Pagination } from '@nextui-org/pagination';
 import { User } from '@nextui-org/user';
 import { Chip } from '@nextui-org/chip';
 import Link from 'next/link';
-// import { columns, users, statusOptions } from "./data";
-// import { capitalize } from "./utils";
+import { Snippet } from '@nextui-org/snippet';
+import { useDisclosure } from '@nextui-org/modal';
+import DeleteConfirmModal from './deleteConfirmModal';
+import { collection, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/app/firebase/firebase';
+import toast from 'react-hot-toast';
 
 
 const columns = [
-	{ name: "ID", uid: "id", sortable: true },
-	{ name: "NAME", uid: "name", sortable: true },
-	{ name: "AGE", uid: "age", sortable: true },
-	{ name: "ROLE", uid: "role", sortable: true },
-	{ name: "TEAM", uid: "team" },
-	{ name: "EMAIL", uid: "email" },
-	{ name: "STATUS", uid: "status", sortable: true },
-	{ name: "ACTIONS", uid: "actions" },
+    { name: "ID", uid: "id", sortable: true },
+    { name: "TITLE", uid: "title", sortable: true },
+    { name: "URL", uid: "url" },
+    { name: "STATUS", uid: "status", sortable: true },
+    { name: "ACTIONS", uid: "actions" },
 ];
 
 const statusOptions = [
-	{ name: "Active", uid: "active" },
-	{ name: "Paused", uid: "paused" },
-	{ name: "Vacation", uid: "vacation" },
+    { name: "Active", uid: "active" },
+    { name: "Paused", uid: "paused" },
 ];
-
-const users = [
-	{
-		id: 1,
-		name: "Tony Reichert",
-		role: "CEO",
-		team: "Management",
-		status: "active",
-		age: "29",
-		avatar: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-		email: "tony.reichert@example.com",
-	},
-	{
-		id: 2,
-		name: "Zoey Lang",
-		role: "Tech Lead",
-		team: "Development",
-		status: "paused",
-		age: "25",
-		avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-		email: "zoey.lang@example.com",
-	},
-	{
-		id: 3,
-		name: "Jane Fisher",
-		role: "Sr. Dev",
-		team: "Development",
-		status: "active",
-		age: "22",
-		avatar: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-		email: "jane.fisher@example.com",
-	},
-	{
-		id: 4,
-		name: "William Howard",
-		role: "C.M.",
-		team: "Marketing",
-		status: "vacation",
-		age: "28",
-		avatar: "https://i.pravatar.cc/150?u=a048581f4e29026701d",
-		email: "william.howard@example.com",
-	},
-	{
-		id: 5,
-		name: "Kristen Copper",
-		role: "S. Manager",
-		team: "Sales",
-		status: "active",
-		age: "24",
-		avatar: "https://i.pravatar.cc/150?u=a092581d4ef9026700d",
-		email: "kristen.cooper@example.com",
-	},
-	{
-		id: 6,
-		name: "Brian Kim",
-		role: "P. Manager",
-		team: "Management",
-		age: "29",
-		avatar: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-		email: "brian.kim@example.com",
-		status: "Active",
-	},
-	{
-		id: 7,
-		name: "Michael Hunt",
-		role: "Designer",
-		team: "Design",
-		status: "paused",
-		age: "27",
-		avatar: "https://i.pravatar.cc/150?u=a042581f4e29027007d",
-		email: "michael.hunt@example.com",
-	},
-	{
-		id: 8,
-		name: "Samantha Brooks",
-		role: "HR Manager",
-		team: "HR",
-		status: "active",
-		age: "31",
-		avatar: "https://i.pravatar.cc/150?u=a042581f4e27027008d",
-		email: "samantha.brooks@example.com",
-	},
-	{
-		id: 9,
-		name: "Frank Harrison",
-		role: "F. Manager",
-		team: "Finance",
-		status: "vacation",
-		age: "33",
-		avatar: "https://i.pravatar.cc/150?img=4",
-		email: "frank.harrison@example.com",
-	},
-	{
-		id: 10,
-		name: "Emma Adams",
-		role: "Ops Manager",
-		team: "Operations",
-		status: "active",
-		age: "35",
-		avatar: "https://i.pravatar.cc/150?img=5",
-		email: "emma.adams@example.com",
-	},
-	{
-		id: 11,
-		name: "Brandon Stevens",
-		role: "Jr. Dev",
-		team: "Development",
-		status: "active",
-		age: "22",
-		avatar: "https://i.pravatar.cc/150?img=8",
-		email: "brandon.stevens@example.com",
-	},
-	{
-		id: 12,
-		name: "Megan Richards",
-		role: "P. Manager",
-		team: "Product",
-		status: "paused",
-		age: "28",
-		avatar: "https://i.pravatar.cc/150?img=10",
-		email: "megan.richards@example.com",
-	},
-	{
-		id: 13,
-		name: "Oliver Scott",
-		role: "S. Manager",
-		team: "Security",
-		status: "active",
-		age: "37",
-		avatar: "https://i.pravatar.cc/150?img=12",
-		email: "oliver.scott@example.com",
-	},
-	{
-		id: 14,
-		name: "Grace Allen",
-		role: "M. Specialist",
-		team: "Marketing",
-		status: "active",
-		age: "30",
-		avatar: "https://i.pravatar.cc/150?img=16",
-		email: "grace.allen@example.com",
-	},
-	{
-		id: 15,
-		name: "Noah Carter",
-		role: "IT Specialist",
-		team: "I. Technology",
-		status: "paused",
-		age: "31",
-		avatar: "https://i.pravatar.cc/150?img=15",
-		email: "noah.carter@example.com",
-	},
-	{
-		id: 16,
-		name: "Ava Perez",
-		role: "Manager",
-		team: "Sales",
-		status: "active",
-		age: "29",
-		avatar: "https://i.pravatar.cc/150?img=20",
-		email: "ava.perez@example.com",
-	},
-	{
-		id: 17,
-		name: "Liam Johnson",
-		role: "Data Analyst",
-		team: "Analysis",
-		status: "active",
-		age: "28",
-		avatar: "https://i.pravatar.cc/150?img=33",
-		email: "liam.johnson@example.com",
-	},
-	{
-		id: 18,
-		name: "Sophia Taylor",
-		role: "QA Analyst",
-		team: "Testing",
-		status: "active",
-		age: "27",
-		avatar: "https://i.pravatar.cc/150?img=29",
-		email: "sophia.taylor@example.com",
-	},
-	{
-		id: 19,
-		name: "Lucas Harris",
-		role: "Administrator",
-		team: "Information Technology",
-		status: "paused",
-		age: "32",
-		avatar: "https://i.pravatar.cc/150?img=50",
-		email: "lucas.harris@example.com",
-	},
-	{
-		id: 20,
-		name: "Mia Robinson",
-		role: "Coordinator",
-		team: "Operations",
-		status: "active",
-		age: "26",
-		avatar: "https://i.pravatar.cc/150?img=45",
-		email: "mia.robinson@example.com",
-	},
-];
-
 
 function capitalize(str) {
-	return str.charAt(0).toUpperCase() + str.slice(1);
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+// const allVideos = [
+//     {
+//         id: 1,
+//         title: "Tony Reichert",
+//         categories: ["Comedy", "Drama", "Romance"],
+//         url: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+//         status: "active",
+//         image: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+//     },
+//     {
+//         id: 2,
+//         title: "Robert Reichert",
+//         categories: ["Biography", "Documentary"],
+//         url: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+//         status: "paused",
+//         image: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+//     },
+// ];
 
 const statusColorMap = {
     active: "success",
     paused: "danger",
-    vacation: "warning",
 };
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["title", "url", "status", "actions"];
 
-export default function AdminAllVideosTable() {
+export default function AdminAllVideosTable({ allVideos, fetchAllVideos }) {
     const [filterValue, setFilterValue] = React.useState("");
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
     const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
     const [statusFilter, setStatusFilter] = React.useState("all");
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [sortDescriptor, setSortDescriptor] = React.useState({
-        column: "age",
+        column: "id",
         direction: "ascending",
     });
     const [page, setPage] = React.useState(1);
+
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [deleteId, setDeleteId] = React.useState("");
+    const [deleteName, setDeleteName] = React.useState("");
+    const [willDeleteName, setWillDeleteName] = React.useState("");
+    const [deleting, setDeleting] = React.useState(false);
+
+
+    const statusChangeHandler = async (id, statusToggle) => {
+        try {
+            const allMemesCollection = collection(db, "allmemes");
+            const statusDocRef = doc(allMemesCollection, id);
+            const body = {
+                status: statusToggle,
+            }
+            await updateDoc(statusDocRef, body);
+            toast.success(`Status ${statusToggle == 'active' ? 'Active' : 'Paused'} with ID: ${id}`);
+            fetchAllVideos();
+        } catch (error) {
+            toast.error(error?.message);
+        }
+    }
+
+    const confirmDeleteModal = async (id, title, onClose) => {
+        if (deleteName === willDeleteName) {
+            setDeleting(true);
+            await videoDeleteHandler(id, title)
+            onClose()
+        } else {
+            setWillDeleteName('');
+            setDeleting(false);
+            toast.error('Please confirm the deletion by type in the input field');
+        }
+    }
+
+
+
+    const videoDeleteHandler = async (id, title) => {
+        try {
+            const allMemesCollection = collection(db, "allmemes");
+            const statusDocRef = doc(allMemesCollection, id);
+            await deleteDoc(statusDocRef);
+            toast.success(`Video "${title}" deleted with ID: ${id}`);
+            fetchAllVideos();
+            setWillDeleteName('');
+            setDeleting(false);
+        } catch (error) {
+            toast.error(error?.message);
+            setDeleting(false);
+        }
+    }
+
+
+
 
     const hasSearchFilter = Boolean(filterValue);
 
     const headerColumns = React.useMemo(() => {
         if (visibleColumns === "all") return columns;
-
-        return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
+        return columns.filter((column) => Array.from(visibleColumns).includes(column?.uid));
     }, [visibleColumns]);
 
     const filteredItems = React.useMemo(() => {
-        let filteredUsers = [...users];
+        let filteredUsers = [...allVideos];
 
         if (hasSearchFilter) {
-            filteredUsers = filteredUsers.filter((user) =>
-                user.name.toLowerCase().includes(filterValue.toLowerCase()),
+            filteredUsers = filteredUsers?.filter((user) =>
+                user?.title?.toLowerCase().includes(filterValue.toLowerCase()) || user?.id?.toLowerCase().includes(filterValue.toLowerCase()),
             );
         }
         if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
             filteredUsers = filteredUsers.filter((user) =>
-                Array.from(statusFilter).includes(user.status),
+                Array.from(statusFilter).includes(user?.status),
             );
         }
 
         return filteredUsers;
-    }, [users, filterValue, statusFilter]);
+    }, [allVideos, filterValue, statusFilter]);
 
     const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -306,26 +173,34 @@ export default function AdminAllVideosTable() {
         const cellValue = user[columnKey];
 
         switch (columnKey) {
-            case "name":
+            case "id":
+                return (
+                    <Snippet symbol={''}>{user?.id}</Snippet>
+                );
+            case "title":
                 return (
                     <User
-                        avatarProps={{ radius: "lg", src: user.avatar }}
-                        description={user.email}
+                        avatarProps={{ radius: "lg", src: user?.image }}
+                        description={<div className='flex'>
+                            {user?.categories?.map((category) =>
+                                <Chip
+                                    key={category}
+                                    variant="faded"
+                                    color="success"
+                                    size="sm"
+                                    className='mr-1 my-1'
+                                >
+                                    {category}
+                                </Chip>
+                            )}
+                        </div>}
                         name={cellValue}
                     >
-                        {user.email}
                     </User>
-                );
-            case "role":
-                return (
-                    <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{cellValue}</p>
-                        <p className="text-bold text-tiny capitalize text-default-400">{user.team}</p>
-                    </div>
                 );
             case "status":
                 return (
-                    <Chip className="capitalize" color={statusColorMap[user.status]} size="sm" variant="flat">
+                    <Chip className="capitalize" color={statusColorMap[user?.status]} size="sm" variant="flat">
                         {cellValue}
                     </Chip>
                 );
@@ -339,9 +214,13 @@ export default function AdminAllVideosTable() {
                                 </Button>
                             </DropdownTrigger>
                             <DropdownMenu>
-                                <DropdownItem>View</DropdownItem>
-                                <DropdownItem>Edit</DropdownItem>
-                                <DropdownItem>Delete</DropdownItem>
+                                <DropdownItem><Link href={`/admin/all-videos/edit/${user?.id}`} className='flex items-center gap-1 w-full'><EditIcon className="size-4" />Edit</Link></DropdownItem>
+                                <DropdownItem onClick={() => { statusChangeHandler(user?.id, user?.status === "active" ? "paused" : "active") }}><div className='flex items-center gap-1 w-full'><TrendingIcon className="size-4" />{user?.status === "active" ? "Set Paused" : "Set Active"}</div></DropdownItem>
+                                <DropdownItem onPress={() => {
+                                    onOpen()
+                                    setDeleteId(user?.id)
+                                    setDeleteName(user?.title)
+                                }} className='hover:!bg-red-700/10 hover:!text-red-500'><Link href="" className='flex items-center gap-1 w-full'><DeleteIcon className="size-4" />Delete</Link></DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
                     </div>
@@ -411,8 +290,8 @@ export default function AdminAllVideosTable() {
                                 onSelectionChange={setStatusFilter}
                             >
                                 {statusOptions.map((status) => (
-                                    <DropdownItem key={status.uid} className="capitalize">
-                                        {capitalize(status.name)}
+                                    <DropdownItem key={status?.uid} className="capitalize">
+                                        {capitalize(status?.name)}
                                     </DropdownItem>
                                 ))}
                             </DropdownMenu>
@@ -432,8 +311,8 @@ export default function AdminAllVideosTable() {
                                 onSelectionChange={setVisibleColumns}
                             >
                                 {columns.map((column) => (
-                                    <DropdownItem key={column.uid} className="capitalize">
-                                        {capitalize(column.name)}
+                                    <DropdownItem key={column?.uid} className="capitalize">
+                                        {capitalize(column?.name)}
                                     </DropdownItem>
                                 ))}
                             </DropdownMenu>
@@ -444,7 +323,7 @@ export default function AdminAllVideosTable() {
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {users.length} users</span>
+                    <span className="text-default-400 text-small">Total {allVideos.length} videos</span>
                     <label className="flex items-center text-default-400 text-small">
                         Rows per page:
                         <select
@@ -465,7 +344,7 @@ export default function AdminAllVideosTable() {
         statusFilter,
         visibleColumns,
         onRowsPerPageChange,
-        users.length,
+        allVideos.length,
         onSearchChange,
         hasSearchFilter,
     ]);
@@ -500,40 +379,43 @@ export default function AdminAllVideosTable() {
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
     return (
-        <Table
-            aria-label="Example table with custom cells, pagination and sorting"
-            isHeaderSticky
-            bottomContent={bottomContent}
-            bottomContentPlacement="outside"
-            // classNames={{
-            //     wrapper: "max-h-[382px]",
-            // }}
-            selectedKeys={selectedKeys}
-            selectionMode="multiple"
-            sortDescriptor={sortDescriptor}
-            topContent={topContent}
-            topContentPlacement="outside"
-            onSelectionChange={setSelectedKeys}
-            onSortChange={setSortDescriptor}
-        >
-            <TableHeader columns={headerColumns}>
-                {(column) => (
-                    <TableColumn
-                        key={column.uid}
-                        align={column.uid === "actions" ? "center" : "start"}
-                        allowsSorting={column.sortable}
-                    >
-                        {column.name}
-                    </TableColumn>
-                )}
-            </TableHeader>
-            <TableBody emptyContent={"No users found"} items={sortedItems}>
-                {(item) => (
-                    <TableRow key={item.id}>
-                        {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                    </TableRow>
-                )}
-            </TableBody>
-        </Table>
+        <>
+            <Table
+                aria-label="Example table with custom cells, pagination and sorting"
+                isHeaderSticky
+                bottomContent={bottomContent}
+                bottomContentPlacement="outside"
+                // classNames={{
+                //     wrapper: "max-h-[382px]",
+                // }}
+                selectedKeys={selectedKeys}
+                selectionMode="multiple"
+                sortDescriptor={sortDescriptor}
+                topContent={topContent}
+                topContentPlacement="outside"
+                onSelectionChange={setSelectedKeys}
+                onSortChange={setSortDescriptor}
+            >
+                <TableHeader columns={headerColumns}>
+                    {(column) => (
+                        <TableColumn
+                            key={column?.uid}
+                            align={column?.uid === "actions" ? "center" : "start"}
+                            allowsSorting={column?.sortable}
+                        >
+                            {column?.name}
+                        </TableColumn>
+                    )}
+                </TableHeader>
+                <TableBody emptyContent={"No videos found"} items={sortedItems}>
+                    {(item) => (
+                        <TableRow key={item?.id}>
+                            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+            <DeleteConfirmModal deleteId={deleteId} deleteName={deleteName} willDeleteName={willDeleteName} isOpen={isOpen} onOpenChange={onOpenChange} setWillDeleteName={setWillDeleteName} confirmDeleteModal={confirmDeleteModal} deleting={deleting} labelName={"Video"} />
+        </>
     );
 }

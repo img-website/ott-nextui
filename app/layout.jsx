@@ -24,7 +24,7 @@ export const viewport = {
 }
 
 export default function RootLayout({
-	children,
+	children, modal
 }) {
 	return (
 		<html lang="en" suppressHydrationWarning>
@@ -37,6 +37,8 @@ export default function RootLayout({
 			>
 				<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
 					{children}
+					{modal}
+					<div id="modal-root" />
 				</Providers>
 				<Toaster
 					position="bottom-center"

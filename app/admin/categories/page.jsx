@@ -23,7 +23,7 @@ const CategoriesPage = () => {
 	}, [])
 	return (
 		<AdminLayout>
-			<AdminAllCategoryTable allCategories={allCategories} setAllCategories={setAllCategories} />
+			<AdminAllCategoryTable allCategories={allCategories} setAllCategories={setAllCategories} fetchAllCategories={fetchAllCategories} />
 		</AdminLayout>
 	)
 }

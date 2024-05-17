@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { ChevronDownIcon, DeleteIcon, EditIcon, PlusIcon, SearchIcon, TrendingIcon, VerticalDotsIcon, ViewIcon } from '@/components/icons';
+import { ChevronDownIcon, DeleteIcon, EditIcon, PlusIcon, SearchIcon, TrendingIcon, VerticalDotsIcon } from '@/components/icons';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
 import { Input } from '@nextui-org/input';
@@ -10,21 +10,26 @@ import { User } from '@nextui-org/user';
 import { Chip } from '@nextui-org/chip';
 import Link from 'next/link';
 import { Snippet } from '@nextui-org/snippet';
+import toast from 'react-hot-toast';
+import { collection, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/app/firebase/firebase';
+import DeleteConfirmModal from './deleteConfirmModal';
+import { useDisclosure } from '@nextui-org/modal';
 
 const columns = [
-	{ name: "STATUS ID", uid: "id", sortable: true },
-	{ name: "STATUS NAME", uid: "statusName", sortable: true },
-	{ name: "STATUS", uid: "status", sortable: true },
-	{ name: "ACTIONS", uid: "actions" },
+    { name: "STATUS ID", uid: "id", sortable: true },
+    { name: "STATUS NAME", uid: "statusName", sortable: true },
+    { name: "STATUS", uid: "status", sortable: true },
+    { name: "ACTIONS", uid: "actions" },
 ];
 
 const statusOptions = [
-	{ name: "Active", uid: "active" },
-	{ name: "Paused", uid: "paused" },
+    { name: "Active", uid: "active" },
+    { name: "Paused", uid: "paused" },
 ];
 
 function capitalize(str) {
-	return str.charAt(0).toUpperCase() + str.slice(1);
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 const statusColorMap = {
@@ -34,7 +39,7 @@ const statusColorMap = {
 
 const INITIAL_VISIBLE_COLUMNS = ["statusName", "status", "actions"];
 
-export default function AdminAllStatusTable({allStatus, setAllStatus}) {
+export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
     const [users, setUsers] = React.useState([]);
     const [filterValue, setFilterValue] = React.useState("");
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
@@ -47,11 +52,61 @@ export default function AdminAllStatusTable({allStatus, setAllStatus}) {
     });
     const [page, setPage] = React.useState(1);
 
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [deleteId, setDeleteId] = React.useState("");
+    const [deleteName, setDeleteName] = React.useState("");
+    const [willDeleteName, setWillDeleteName] = React.useState("");
+    const [deleting, setDeleting] = React.useState(false);
+
+
+    const statusChangeHandler = async (id, statusToggle) => {
+        try {
+            const statusCollection = collection(db, "status");
+            const statusDocRef = doc(statusCollection, id);
+            const body = {
+                status: statusToggle,
+            }
+            await updateDoc(statusDocRef, body);
+            toast.success(`Status ${statusToggle == 'active' ? 'Active' : 'Paused'} with ID: ${id}`);
+            fetchAllStatus();
+        } catch (error) {
+            toast.error(error?.message);
+        }
+    }
+
+    const confirmDeleteModal = async (id, statusName, onClose) => {
+        if (deleteName === willDeleteName) {
+            setDeleting(true);
+            await statusDeleteHandler(id, statusName)
+            onClose()
+        } else {
+            setWillDeleteName('');
+            setDeleting(false);
+            toast.error('Please confirm the deletion by type in the input field');
+        }
+    }
+
+
+
+    const statusDeleteHandler = async (id, statusName) => {
+        try {
+            const statusCollection = collection(db, "status");
+            const statusDocRef = doc(statusCollection, id);
+            await deleteDoc(statusDocRef);
+            toast.success(`Status "${statusName}" deleted with ID: ${id}`);
+            fetchAllStatus();
+            setWillDeleteName('');
+            setDeleting(false);
+        } catch (error) {
+            toast.error(error?.message);
+            setDeleting(false);
+        }
+    }
+
+
     React.useEffect(() => {
         setUsers(allStatus);
     }, [allStatus]);
-
-    // console.info(users)
 
 
     const hasSearchFilter = Boolean(filterValue);
@@ -67,7 +122,7 @@ export default function AdminAllStatusTable({allStatus, setAllStatus}) {
 
         if (hasSearchFilter) {
             filteredUsers = filteredUsers?.filter((user) =>
-                user?.statusName.toLowerCase().includes(filterValue.toLowerCase()),
+                user?.statusName?.toLowerCase().includes(filterValue.toLowerCase()) || user?.id?.toLowerCase().includes(filterValue.toLowerCase()),
             );
         }
         if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
@@ -124,17 +179,21 @@ export default function AdminAllStatusTable({allStatus, setAllStatus}) {
             case "actions":
                 return (
                     <div className="relative flex justify-end items-center gap-2">
-                        <Dropdown>
+                        <Dropdown aria-label="User Actions Menu">
                             <DropdownTrigger>
                                 <Button isIconOnly size="sm" variant="light" color='primary'>
                                     <VerticalDotsIcon />
                                 </Button>
                             </DropdownTrigger>
                             <DropdownMenu>
-                                <DropdownItem><Link href="" className='flex items-center gap-1 w-full'><ViewIcon className="size-4" />View</Link></DropdownItem>
-                                <DropdownItem><Link href="" className='flex items-center gap-1 w-full'><EditIcon className="size-4" />Edit</Link></DropdownItem>
-                                <DropdownItem><Link href="" className='flex items-center gap-1 w-full'><TrendingIcon className="size-4" />{user?.status === "active" ? "Set Paused":"Set Active"}</Link></DropdownItem>
-                                <DropdownItem><Link href="" className='flex items-center gap-1 w-full'><DeleteIcon className="size-4" />Delete</Link></DropdownItem>
+                                {/* <DropdownItem><Link href="" className='flex items-center gap-1 w-full'><ViewIcon className="size-4" />View</Link></DropdownItem> */}
+                                <DropdownItem><Link href={`/admin/status/edit/${user?.id}`} className='flex items-center gap-1 w-full'><EditIcon className="size-4" />Edit</Link></DropdownItem>
+                                <DropdownItem onClick={() => { statusChangeHandler(user?.id, user?.status === "active" ? "paused" : "active") }}><div className='flex items-center gap-1 w-full'><TrendingIcon className="size-4" />{user?.status === "active" ? "Set Paused" : "Set Active"}</div></DropdownItem>
+                                <DropdownItem onPress={() => {
+                                    onOpen()
+                                    setDeleteId(user?.id)
+                                    setDeleteName(user?.statusName)
+                                }} className='hover:!bg-red-700/10 hover:!text-red-500'><Link href="" className='flex items-center gap-1 w-full'><DeleteIcon className="size-4" />Delete</Link></DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
                     </div>
@@ -237,7 +296,7 @@ export default function AdminAllStatusTable({allStatus, setAllStatus}) {
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {users?.length} users</span>
+                    <span className="text-default-400 text-small">Total {users?.length} status</span>
                     <label className="flex items-center text-default-400 text-small">
                         Rows per page:
                         <select
@@ -293,40 +352,44 @@ export default function AdminAllStatusTable({allStatus, setAllStatus}) {
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
     return (
-        <Table
-            aria-label="Example table with custom cells, pagination and sorting"
-            isHeaderSticky
-            bottomContent={bottomContent}
-            bottomContentPlacement="outside"
-            // classNames={{
-            //     wrapper: "max-h-[382px]",
-            // }}
-            selectedKeys={selectedKeys}
-            selectionMode="multiple"
-            sortDescriptor={sortDescriptor}
-            topContent={topContent}
-            topContentPlacement="outside"
-            onSelectionChange={setSelectedKeys}
-            onSortChange={setSortDescriptor}
-        >
-            <TableHeader columns={headerColumns}>
-                {(column) => (
-                    <TableColumn
-                        key={column?.uid}
-                        align={column?.uid === "actions" ? "center" : "start"}
-                        allowsSorting={column?.sortable}
-                    >
-                        {column?.name}
-                    </TableColumn>
-                )}
-            </TableHeader>
-            <TableBody emptyContent={"No status found"} items={sortedItems}>
-                {(item) => (
-                    <TableRow key={item?.id}>
-                        {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                    </TableRow>
-                )}
-            </TableBody>
-        </Table>
+        <>
+            <Table
+                aria-label="Example table with custom cells, pagination and sorting"
+                isHeaderSticky
+                bottomContent={bottomContent}
+                bottomContentPlacement="outside"
+                // classNames={{
+                //     wrapper: "max-h-[382px]",
+                // }}
+                selectedKeys={selectedKeys}
+                selectionMode="multiple"
+                sortDescriptor={sortDescriptor}
+                topContent={topContent}
+                topContentPlacement="outside"
+                onSelectionChange={setSelectedKeys}
+                onSortChange={setSortDescriptor}
+            >
+                <TableHeader columns={headerColumns}>
+                    {(column) => (
+                        <TableColumn
+                            key={column?.uid}
+                            align={column?.uid === "actions" ? "center" : "start"}
+                            allowsSorting={column?.sortable}
+                        >
+                            {column?.name}
+                        </TableColumn>
+                    )}
+                </TableHeader>
+                <TableBody emptyContent={"No status found"} items={sortedItems}>
+                    {(item) => (
+                        <TableRow key={item?.id}>
+                            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+            <DeleteConfirmModal deleteId={deleteId} deleteName={deleteName} willDeleteName={willDeleteName} isOpen={isOpen} onOpenChange={onOpenChange} setWillDeleteName={setWillDeleteName} confirmDeleteModal={confirmDeleteModal} deleting={deleting} labelName={"Status"} />
+        </>
     );
 }
+

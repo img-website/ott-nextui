@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import AdminLayout from '@/app/_layouts/AdminLayout';
-import { CheckCircleIcon, ResetIcon, TrendingIcon } from '@/components/icons';
+import { CheckCircleIcon, EditIcon, ResetIcon, ToggleIcon, TrendingIcon, UploadIcon } from '@/components/icons';
 import { Button } from '@nextui-org/button';
 import { Card, CardBody, CardFooter, CardHeader } from '@nextui-org/card';
 import { Divider } from '@nextui-org/divider';
@@ -75,9 +75,8 @@ const AddPage = () => {
 			const timestamp = Date.now();
 			const originalFilename = file.name;
 			const extension = originalFilename.split('.').pop();
-			console.info(timestamp)
 			const newFilename = `${timestamp}.${extension}`;
-		
+
 			const imagesRef = ref(storage, `/media/status/${newFilename}`);
 			const uploadTask = await uploadBytes(imagesRef, file).then((snapshot) => {
 				getDownloadURL(snapshot.ref)
@@ -99,7 +98,7 @@ const AddPage = () => {
 		e.preventDefault();
 		setIsLoading(true);
 		if (!selectedFile) {
-			toast.error('Please select a file to upload.');
+			toast.error('Please select status image to upload.');
 			setIsLoading(false);
 			return;
 		}
@@ -127,7 +126,7 @@ const AddPage = () => {
 							isRequired
 							size="lg"
 							variant="bordered"
-							startContent={<TrendingIcon className="size-4" />}
+							startContent={<EditIcon className="size-4" />}
 							type="text"
 							id="statusName"
 							value={statusName}
@@ -140,7 +139,7 @@ const AddPage = () => {
 							isRequired
 							size="lg"
 							variant="bordered"
-							startContent={<CheckCircleIcon className="size-4" />}
+							startContent={<ToggleIcon className="size-4" />}
 							id="currentStatus"
 							selectedKeys={[currentStatus]}
 							onChange={(e) => { setCurrentStatus(e.target.value) }}
@@ -153,36 +152,22 @@ const AddPage = () => {
 						</Select>
 					</div>
 					<div className="mb-4 sm:col-span-2">
-						<div className="group flex flex-col w-full cursor-pointer" data-slot="base" data-filled="true" data-filled-within="true" data-required="true" data-has-elements="true" data-has-label="true" data-has-value="true" data-invalid="true" data-has-helper="false">
-							<div data-slot="input-wrapper" className="relative w-full inline-flex tap-highlight-transparent shadow-sm px-3 border-medium min-h-12 rounded-large flex-col items-start justify-center transition-background !duration-150 motion-reduce:transition-none h-16 py-2.5 gap-0 border-gray-400 data-[hover=true]:border-gray-300 group-data-[focus=true]:border-gray-200 cursor-pointer" style={{ cursor: 'text' }}>
-								<label data-slot="label" className="absolute z-10 pointer-events-none origin-top-left rtl:origin-top-right subpixel-antialiased block text-foreground-500 after:content-['*'] after:text-danger after:ml-0.5 will-change-auto !duration-200 !ease-out motion-reduce:transition-none transition-[transform,color,left,opacity] group-data-[filled-within=true]:pointer-events-auto group-data-[filled-within=true]:scale-85 text-medium group-data-[filled-within=true]:-translate-y-[calc(50%_+_theme(fontSize.small)/2_-_8px_-_theme(borderWidth.medium))] pe-2 max-w-full text-ellipsis overflow-hidden group-data-[filled-within=true]:text-gray-300 cursor-pointer" id="react-aria-:RdmkvfffacqH1:" htmlFor="image">
-									Upload Status Image
-								</label>
-								<div data-slot="inner-wrapper" className="inline-flex w-full items-center h-full box-border group-data-[has-label=true]:items-end cursor-pointer">
-									<svg fill="currentColor" height={40} viewBox="0 0 576 512" strokeWidth={0} strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" className="size-4">
-										<path d="M160 80H512c8.8 0 16 7.2 16 16V320c0 8.8-7.2 16-16 16H490.8L388.1 178.9c-4.4-6.8-12-10.9-20.1-10.9s-15.7 4.1-20.1 10.9l-52.2 79.8-12.4-16.9c-4.5-6.2-11.7-9.8-19.4-9.8s-14.8 3.6-19.4 9.8L175.6 336H160c-8.8 0-16-7.2-16-16V96c0-8.8 7.2-16 16-16zM96 96V320c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H160c-35.3 0-64 28.7-64 64zM48 120c0-13.3-10.7-24-24-24S0 106.7 0 120V344c0 75.1 60.9 136 136 136H456c13.3 0 24-10.7 24-24s-10.7-24-24-24H136c-48.6 0-88-39.4-88-88V120zm208 24a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z">
-										</path>
-									</svg>
-									<input
-										onChange={handleFileChange}
-										ref={inputFileRef}
-										data-slot="input"
-										data-has-start-content="true"
-										className="w-full font-normal bg-transparent !outline-none placeholder:text-foreground-500 focus-visible:outline-none data-[has-start-content=true]:ps-1.5 data-[has-end-content=true]:pe-1.5 text-gray-200 text-sm cursor-pointer file:mr-2 file:py-0 file:px-1 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer"
-										id="image"
-										aria-label="Upload Status Image"
-										type="file"
-										required
-										aria-required="true"
-										aria-invalid="true"
-										accept="image/*" // Add this attribute to accept only images
-									/>
-
+						<div className="flex items-center justify-center w-full">
+							<label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-64 border-2 border-zinc-300 border-dashed rounded-lg cursor-pointer bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:border-zinc-500 dark:hover:bg-zinc-600 bg-cover bg-center" style={selectedFile ? { backgroundImage: `url(${URL.createObjectURL(selectedFile)})` } : {}}>
+								<div className={`flex flex-col items-center justify-center pt-5 pb-6 backdrop-blur-lg size-full group/opacity hover:opacity-100 ${selectedFile ? 'opacity-0 bg-zinc-900/50' : ''}`}>
+									<UploadIcon className="size-6 text-zinc-500 group-[.opacity-0]/opacity:text-zinc-100 dark:text-zinc-400" />
+									<p className="mb-2 text-sm text-zinc-500 group-[.opacity-0]/opacity:text-zinc-100 dark:text-zinc-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+									<p className="text-xs text-zinc-500 group-[.opacity-0]/opacity:text-zinc-100 dark:text-zinc-400">WEBP, AVIF, PNG, JPG or GIF (MAX. 800x400px)</p>
 								</div>
-							</div>
-							<div data-slot="helper-wrapper" className="hidden group-data-[has-helper=true]:flex p-1 relative flex-col gap-1.5">
-								<div data-slot="error-message" className="text-tiny text-danger" id="react-aria-:RdmkvfffacqH4:">Please select a file.</div>
-							</div>
+								<input
+									id="dropzone-file"
+									type="file"
+									className="hidden"
+									onChange={handleFileChange}
+									ref={inputFileRef}
+									accept="image/*"
+								/>
+							</label>
 						</div>
 					</div>
 

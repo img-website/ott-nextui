@@ -23,7 +23,7 @@ const StatusPage = () => {
 	}, [])
 	return (
 		<AdminLayout>
-			<AdminAllStatusTable allStatus={allStatus} setAllStatus={setAllStatus} />
+			<AdminAllStatusTable allStatus={allStatus} fetchAllStatus={fetchAllStatus} />
 		</AdminLayout>
 	)
 }

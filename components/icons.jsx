@@ -829,3 +829,67 @@ export const CheckCircleIcon = (props) => {
 		</svg>
 	);
 };
+
+export const UploadIcon = (props) => {
+	const { width, height = 40 } = props;
+
+	return (
+		<svg
+			fill="none"
+			height={height}
+			viewBox="0 0 20 16"
+			strokeWidth="0"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			width={width}
+			xmlns="http://www.w3.org/2000/svg"
+			stroke="currentColor"
+			{...props}
+		>
+			<path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+		</svg>
+	);
+};
+
+export const ToggleIcon = (props) => {
+	const { width, height = 40 } = props;
+
+	return (
+		<svg
+			fill="none"
+			height={height}
+			viewBox="0 0 24 24"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			width={width}
+			xmlns="http://www.w3.org/2000/svg"
+			stroke="currentColor"
+			{...props}
+		>
+			<rect x="1" y="5" width="22" height="14" rx="7" ry="7"></rect>
+			<circle cx="8" cy="12" r="3"></circle>
+		</svg>
+	);
+};
+
+export const Link2Icon = (props) => {
+	const { width, height = 40 } = props;
+
+	return (
+		<svg
+			fill="none"
+			height={height}
+			viewBox="0 0 512 512"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			width={width}
+			xmlns="http://www.w3.org/2000/svg"
+			stroke="currentColor"
+			{...props}
+		>
+			<path fill="none" strokeWidth="48" d="M200.66 352H144a96 96 0 0 1 0-192h55.41m113.18 0H368a96 96 0 0 1 0 192h-56.66m-142.27-96h175.86"></path>
+		</svg>
+	);
+};
