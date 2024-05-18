@@ -2,6 +2,7 @@
 import AdminLayout from '@/app/_layouts/AdminLayout'
 import { getAllData } from '@/app/firebase/firebase';
 import AdminAllVideosTable from '@/components/adminAllVideosTable'
+import ProtectedRoute from '@/components/protected/ProtectedRoute';
 import React from 'react';
 
 const AllVideosPage = () => {
@@ -20,9 +21,11 @@ const AllVideosPage = () => {
 		fetchAllVideos();
 	}, [])
 	return (
-		<AdminLayout>
-			<AdminAllVideosTable allVideos={allVideos} fetchAllVideos={fetchAllVideos} />
-		</AdminLayout>
+		<ProtectedRoute>
+			<AdminLayout>
+				<AdminAllVideosTable allVideos={allVideos} fetchAllVideos={fetchAllVideos} />
+			</AdminLayout>
+		</ProtectedRoute>
 	)
 }
 

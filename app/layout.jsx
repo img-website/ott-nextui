@@ -4,6 +4,7 @@ import { fontSans } from "@/config/fonts";
 import { Providers } from "@/app/providers";
 import clsx from "clsx";
 import { Toaster } from "react-hot-toast";
+import { AuthUserProvider } from "@/context/AuthenticationContext";
 
 export const metadata = {
 	title: {
@@ -24,7 +25,7 @@ export const viewport = {
 }
 
 export default function RootLayout({
-	children, modal
+	children
 }) {
 	return (
 		<html lang="en" suppressHydrationWarning>
@@ -35,11 +36,12 @@ export default function RootLayout({
 					fontSans.variable
 				)}
 			>
-				<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-					{children}
-					{modal}
-					<div id="modal-root" />
-				</Providers>
+				<AuthUserProvider>
+					<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+						{children}
+						<div id="modal-root" />
+					</Providers>
+				</AuthUserProvider>
 				<Toaster
 					position="bottom-center"
 					reverseOrder={false}

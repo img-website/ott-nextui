@@ -4,6 +4,7 @@ import AdminLayout from '@/app/_layouts/AdminLayout'
 import { getAllData } from '@/app/firebase/firebase';
 import toast from 'react-hot-toast';
 import AdminAllCategoryTable from '@/components/adminAllCategoryTable';
+import ProtectedRoute from '@/components/protected/ProtectedRoute';
 
 const CategoriesPage = () => {
 	const [allCategories, setAllCategories] = React.useState([]);
@@ -22,9 +23,11 @@ const CategoriesPage = () => {
 		fetchAllCategories();
 	}, [])
 	return (
-		<AdminLayout>
-			<AdminAllCategoryTable allCategories={allCategories} setAllCategories={setAllCategories} fetchAllCategories={fetchAllCategories} />
-		</AdminLayout>
+		<ProtectedRoute>
+			<AdminLayout>
+				<AdminAllCategoryTable allCategories={allCategories} setAllCategories={setAllCategories} fetchAllCategories={fetchAllCategories} />
+			</AdminLayout>
+		</ProtectedRoute>
 	)
 }
 

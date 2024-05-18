@@ -4,6 +4,7 @@ import AdminLayout from '@/app/_layouts/AdminLayout'
 import { getAllData } from '@/app/firebase/firebase';
 import AdminAllStatusTable from '@/components/adminAllStatusTable'
 import toast from 'react-hot-toast';
+import ProtectedRoute from '@/components/protected/ProtectedRoute';
 
 const StatusPage = () => {
 	const [allStatus, setAllStatus] = React.useState([]);
@@ -22,9 +23,11 @@ const StatusPage = () => {
 		fetchAllStatus();
 	}, [])
 	return (
-		<AdminLayout>
-			<AdminAllStatusTable allStatus={allStatus} fetchAllStatus={fetchAllStatus} />
-		</AdminLayout>
+		<ProtectedRoute>
+			<AdminLayout>
+				<AdminAllStatusTable allStatus={allStatus} fetchAllStatus={fetchAllStatus} />
+			</AdminLayout>
+		</ProtectedRoute>
 	)
 }
 
