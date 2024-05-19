@@ -1,5 +1,5 @@
 "use client"
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "@/app/firebase/firebase";
 
@@ -13,10 +13,10 @@ const AuthContext = createContext({
 });
 
 export const AuthUserProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [adminAccessToken, setAdminAccessToken] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [user, setUser] = React.useState(null);
+    const [adminAccessToken, setAdminAccessToken] = React.useState(null);
+    const [loading, setLoading] = React.useState(true);
+    const [error, setError] = React.useState(null);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {

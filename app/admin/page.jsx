@@ -1,16 +1,16 @@
 "use client"
 import AdminSignin from "@/components/adminSignin";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import React from "react";
 import { useAuth } from "@/context/AuthenticationContext";
 
 export default function AdminPage() {
 
-	const [isLoading, setIsLoading] = useState(false);
-	const [isVisible, setIsVisible] = useState(false);
+	const [isLoading, setIsLoading] = React.useState(false);
+	const [isVisible, setIsVisible] = React.useState(false);
 
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
+	const [email, setEmail] = React.useState('');
+	const [password, setPassword] = React.useState('');
 	
 	const { login, error, loading } = useAuth();
 	const submitHandler = async (e) => {

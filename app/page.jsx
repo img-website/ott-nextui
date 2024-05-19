@@ -7,16 +7,9 @@ import { siteConfig } from "@/config/site";
 import { title, subtitle } from "@/components/primitives";
 import { GithubIcon } from "@/components/icons";
 import { Input } from "@nextui-org/input";
-// import { useEffect, useState } from "react";
 import FrontendLayout from "@/app/_layouts/FrontendLayout";
 
 export default function Home() {
-	// const [isLoaded, setIsLoaded] = useState(false);
-
-	// useEffect(()=>{
-	// 	setIsLoaded(true);
-	// },[])
-	// if(!isLoaded) return null;
 
 	return (
 		<FrontendLayout>
