@@ -11,10 +11,11 @@ import { Chip } from '@nextui-org/chip';
 import Link from 'next/link';
 import { Snippet } from '@nextui-org/snippet';
 import { useDisclosure } from '@nextui-org/modal';
-import DeleteConfirmModal from './deleteConfirmModal';
-import { collection, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { db } from '@/app/firebase/firebase';
+import DeleteConfirmModal from './modal/deleteConfirmModal';
+import { collection, deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db, storage } from '@/app/firebase/firebase';
 import toast from 'react-hot-toast';
+import { deleteObject, ref } from 'firebase/storage';
 
 
 const columns = [
@@ -82,11 +83,11 @@ export default function AdminAllVideosTable({ allVideos, fetchAllVideos }) {
     const statusChangeHandler = async (id, statusToggle) => {
         try {
             const allMemesCollection = collection(db, "allmemes");
-            const statusDocRef = doc(allMemesCollection, id);
+            const allMemesDocRef = doc(allMemesCollection, id);
             const body = {
                 status: statusToggle,
             }
-            await updateDoc(statusDocRef, body);
+            await updateDoc(allMemesDocRef, body);
             toast.success(`Status ${statusToggle == 'active' ? 'Active' : 'Paused'} with ID: ${id}`);
             fetchAllVideos();
         } catch (error) {
@@ -111,8 +112,15 @@ export default function AdminAllVideosTable({ allVideos, fetchAllVideos }) {
     const videoDeleteHandler = async (id, title) => {
         try {
             const allMemesCollection = collection(db, "allmemes");
-            const statusDocRef = doc(allMemesCollection, id);
-            await deleteDoc(statusDocRef);
+            const allMemesDocRef = doc(allMemesCollection, id);
+            
+            // Extract image URL from document data
+            const docSnapshot = await getDoc(allMemesDocRef);
+            const imageURL = docSnapshot.data().image; // Replace 'imageURL' with actual field name
+            const imageRef = ref(storage, imageURL); // Create a reference to the image
+
+            await deleteObject(imageRef)
+            await deleteDoc(allMemesDocRef);
             toast.success(`Video "${title}" deleted with ID: ${id}`);
             fetchAllVideos();
             setWillDeleteName('');

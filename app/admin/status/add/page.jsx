@@ -138,6 +138,7 @@ const AddPage = () => {
 						<div className="mb-4">
 							<Select
 								label="Select Current Status"
+                                disallowEmptySelection
 								isRequired
 								size="lg"
 								variant="bordered"

@@ -12,6 +12,8 @@ import { db, storage } from '@/app/firebase/firebase';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import toast from 'react-hot-toast';
 import ProtectedRoute from '@/components/protected/ProtectedRoute';
+import { Avatar } from '@nextui-org/avatar';
+import Link from 'next/link';
 
 
 const currentStatusOptions = [
@@ -165,7 +167,6 @@ const AddPage = () => {
 		setSelectedFile(null); // Clear file selection after upload
 	};
 
-
 	return (
 		<ProtectedRoute>
 			<AdminLayout>
@@ -208,16 +209,25 @@ const AddPage = () => {
 						<div className="mb-4">
 							<Select
 								label="Select Category"
+                                disallowEmptySelection
 								isRequired
 								size="lg"
 								variant="bordered"
+								description={
+									!categoryGetData?.length ? <div className='text-white'>Categories not found <Link className='text-primary font-bold' href={'/admin/categories/add'}>Add Category</Link></div> : ''
+								}
 								startContent={<CategoryIcon className="size-4" />}
 								id="category"
 								selectedKeys={[category]}
 								onChange={(e) => { setCategory(e.target.value) }}
 							>
 								{categoryGetData ? categoryGetData?.map((item) => (
-									<SelectItem className="capitalize font-semibold" key={item?.id} value={item?.id}>
+									<SelectItem
+										className="capitalize font-semibold"
+										startContent={<Avatar alt={item?.categoryName} className="w-6 h-6" src={item?.image} />}
+										key={item?.id}
+										value={item?.id}
+									>
 										{item?.categoryName}
 									</SelectItem>
 								)) : ''}
@@ -226,16 +236,25 @@ const AddPage = () => {
 						<div className="mb-4">
 							<Select
 								label="Select Status"
+                                disallowEmptySelection
 								isRequired
 								size="lg"
 								variant="bordered"
+								description={
+									!statusGetData?.length ? <div className='text-white'>Status not found <Link className='text-primary font-bold' href={'/admin/status/add'}>Add Category</Link></div> : ''
+								}
 								startContent={<TrendingIcon className="size-4" />}
 								id="statuss"
 								selectedKeys={[statuss]}
 								onChange={(e) => { setStatuss(e.target.value) }}
 							>
 								{statusGetData?.length ? statusGetData?.map((item) => (
-									<SelectItem className="capitalize font-semibold" key={item?.id} value={item?.id}>
+									<SelectItem
+										className="capitalize font-semibold"
+										startContent={<Avatar alt={item?.statusName} className="w-6 h-6" src={item?.image} />}
+										key={item?.id}
+										value={item?.id}>
+
 										{item?.statusName}
 									</SelectItem>
 								)) : ''}
@@ -244,6 +263,7 @@ const AddPage = () => {
 						<div className="mb-4">
 							<Select
 								label="Select Current Status"
+                                disallowEmptySelection
 								isRequired
 								size="lg"
 								variant="bordered"

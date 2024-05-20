@@ -9,7 +9,7 @@ import { Input } from '@nextui-org/input';
 import { Select, SelectItem } from '@nextui-org/select';
 import { collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { db, storage } from '@/app/firebase/firebase';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import toast from 'react-hot-toast';
 import { Snippet } from '@nextui-org/snippet';
 import { useRouter } from 'next/navigation';
@@ -118,6 +118,14 @@ const EditPage = ({ params }) => {
 				status: currentStatus,
 				...(downloadURL ? { image: downloadURL } : {}),
 			}
+
+            // Extract image URL from document data
+            const docSnapshot = await getDoc(allMemesDocRef);
+            const imageURL = docSnapshot.data().image; // Replace 'imageURL' with actual field name
+            const imageRef = ref(storage, imageURL); // Create a reference to the image
+
+            await deleteObject(imageRef)
+
 			await updateDoc(allMemesDocRef, body);
 			router.back()
 			toast.success(`Video Updated with ID: ${params?.editId}`);
@@ -150,7 +158,7 @@ const EditPage = ({ params }) => {
 			const extension = originalFilename.split('.').pop();
 			const newFilename = `${timestamp}.${extension}`;
 
-			const imagesRef = ref(storage, `/media/allMemes/${newFilename}`);
+			const imagesRef = ref(storage, `/media/allmemes/${newFilename}`);
 			await uploadBytes(imagesRef, file).then((snapshot) => {
 				getDownloadURL(snapshot.ref)
 					.then((downloadURL) => {
@@ -230,6 +238,7 @@ const EditPage = ({ params }) => {
 							<div className="mb-4">
 								<Select
 									label="Select Category"
+									disallowEmptySelection
 									isRequired
 									size="lg"
 									variant="bordered"
@@ -248,6 +257,7 @@ const EditPage = ({ params }) => {
 							<div className="mb-4">
 								<Select
 									label="Select Status"
+									disallowEmptySelection
 									isRequired
 									size="lg"
 									variant="bordered"
@@ -266,6 +276,7 @@ const EditPage = ({ params }) => {
 							<div className="mb-4">
 								<Select
 									label="Select Current Status"
+									disallowEmptySelection
 									isRequired
 									size="lg"
 									variant="bordered"

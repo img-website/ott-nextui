@@ -11,10 +11,11 @@ import { Chip } from '@nextui-org/chip';
 import Link from 'next/link';
 import { Snippet } from '@nextui-org/snippet';
 import toast from 'react-hot-toast';
-import { collection, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { db } from '@/app/firebase/firebase';
-import DeleteConfirmModal from './deleteConfirmModal';
+import { collection, deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db, storage } from '@/app/firebase/firebase';
+import DeleteConfirmModal from './modal/deleteConfirmModal';
 import { useDisclosure } from '@nextui-org/modal';
+import { deleteObject, ref } from 'firebase/storage';
 
 const columns = [
     { name: "STATUS ID", uid: "id", sortable: true },
@@ -87,11 +88,18 @@ export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
     }
 
 
-
     const statusDeleteHandler = async (id, statusName) => {
         try {
             const statusCollection = collection(db, "status");
             const statusDocRef = doc(statusCollection, id);
+            
+            // Extract image URL from document data
+            const docSnapshot = await getDoc(statusDocRef);
+            const imageURL = docSnapshot.data().image; // Replace 'imageURL' with actual field name
+            const imageRef = ref(storage, imageURL); // Create a reference to the image
+
+            await deleteObject(imageRef)
+
             await deleteDoc(statusDocRef);
             toast.success(`Status "${statusName}" deleted with ID: ${id}`);
             fetchAllStatus();
@@ -102,7 +110,6 @@ export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
             setDeleting(false);
         }
     }
-
 
     React.useEffect(() => {
         setUsers(allStatus);

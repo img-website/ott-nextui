@@ -9,7 +9,7 @@ import { Input } from '@nextui-org/input';
 import { Select, SelectItem } from '@nextui-org/select';
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db, storage } from '@/app/firebase/firebase';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import toast from 'react-hot-toast';
 import { Snippet } from '@nextui-org/snippet';
 import { useRouter } from 'next/navigation';
@@ -63,6 +63,14 @@ const EditPage = ({ params }) => {
 				status: currentStatus,
 				...(downloadURL ? { image: downloadURL } : {}),
 			}
+
+            // Extract image URL from document data
+            const docSnapshot = await getDoc(statusDocRef);
+            const imageURL = docSnapshot.data().image; // Replace 'imageURL' with actual field name
+            const imageRef = ref(storage, imageURL); // Create a reference to the image
+
+            await deleteObject(imageRef)
+
 			await updateDoc(statusDocRef, body);
 			router.back()
 			toast.success(`Status Updated with ID: ${params?.editId}`);
@@ -163,6 +171,7 @@ const EditPage = ({ params }) => {
 							<div className="mb-4">
 								<Select
 									label="Select Current Status"
+									disallowEmptySelection
 									isRequired
 									size="lg"
 									variant="bordered"
