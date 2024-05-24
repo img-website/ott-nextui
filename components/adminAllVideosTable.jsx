@@ -12,10 +12,12 @@ import Link from 'next/link';
 import { Snippet } from '@nextui-org/snippet';
 import { useDisclosure } from '@nextui-org/modal';
 import DeleteConfirmModal from './modal/deleteConfirmModal';
-import { collection, deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
 import { db, storage } from '@/app/firebase/firebase';
 import toast from 'react-hot-toast';
 import { deleteObject, ref } from 'firebase/storage';
+import { Spinner } from '@nextui-org/spinner';
+import { ReturnCategoryName } from '@/utils/returnCategoryName';
 
 
 const columns = [
@@ -35,24 +37,6 @@ function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// const allVideos = [
-//     {
-//         id: 1,
-//         title: "Tony Reichert",
-//         categories: ["Comedy", "Drama", "Romance"],
-//         url: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-//         status: "active",
-//         image: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-//     },
-//     {
-//         id: 2,
-//         title: "Robert Reichert",
-//         categories: ["Biography", "Documentary"],
-//         url: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-//         status: "paused",
-//         image: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-//     },
-// ];
 
 const statusColorMap = {
     active: "success",
@@ -61,7 +45,7 @@ const statusColorMap = {
 
 const INITIAL_VISIBLE_COLUMNS = ["title", "url", "status", "actions"];
 
-export default function AdminAllVideosTable({ allVideos, fetchAllVideos }) {
+export default function AdminAllVideosTable({ allVideos, fetchAllVideos, isLoading, hideFooter, hideTableLength }) {
     const [filterValue, setFilterValue] = React.useState("");
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
     const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -95,10 +79,81 @@ export default function AdminAllVideosTable({ allVideos, fetchAllVideos }) {
         }
     }
 
+    const multipleDeleteHandler = async (ids) => {
+        setDeleting(true);
+        try {
+            const allMemesCollection = collection(db, "allmemes");
+            if (selectedKeys == "all") {
+                const querySnapshot = await getDocs(allMemesCollection);
+                const idss = querySnapshot.docs.map(doc => doc.id);
+                for (const id of idss) {
+                    const allMemesDocRef = doc(allMemesCollection, id);
+                    const docSnapshot = await getDoc(allMemesDocRef);
+
+                    let mediaURL = '';
+                    if (docSnapshot.data()?.image?.length > 0) {
+                        mediaURL = docSnapshot.data()?.image; // Replace 'mediaURL' with actual field name
+                    } else if (docSnapshot.data()?.video?.length > 0) {
+                        mediaURL = docSnapshot.data()?.video; // Replace 'mediaURL' with actual field name
+                    } else {
+                        console.log("something went wrong babu bhaiya")
+                    }
+                    if (mediaURL) {
+                        const imageRef = ref(storage, mediaURL); // Create a reference to the image
+                        try {
+                            await deleteObject(imageRef)
+                        } catch (error) {
+                            console.info(error.code)
+                        }
+                    }
+                    await deleteDoc(allMemesDocRef);
+
+                }
+                setSelectedKeys(0)
+                toast.success(`Deleted All Data.`);
+                fetchAllVideos();
+                setWillDeleteName('');
+                setDeleting(false);
+            } else if (typeof (selectedKeys) === "object") {
+                for (const id of ids) {
+                    const allMemesDocRef = doc(allMemesCollection, id);
+                    const docSnapshot = await getDoc(allMemesDocRef);
+
+                    let mediaURL = '';
+                    if (docSnapshot.data()?.image?.length > 0) {
+                        mediaURL = docSnapshot.data()?.image; // Replace 'mediaURL' with actual field name
+                    } else if (docSnapshot.data()?.video?.length > 0) {
+                        mediaURL = docSnapshot.data()?.video; // Replace 'mediaURL' with actual field name
+                    } else {
+                        console.log("something went wrong babu bhaiya")
+                    }
+                    if (mediaURL) {
+                        const imageRef = ref(storage, mediaURL); // Create a reference to the image
+                        try {
+                            await deleteObject(imageRef)
+                        } catch (error) {
+                            console.info(error.code)
+                        }
+                    }
+                    await deleteDoc(allMemesDocRef);
+                }
+                setSelectedKeys(0)
+                toast.success(`Deleted All Selected Data.`);
+                fetchAllVideos();
+                setWillDeleteName('');
+                setDeleting(false);
+            }
+
+        } catch (error) {
+            toast.error(error?.message);
+            setDeleting(false);
+        }
+    }
+
     const confirmDeleteModal = async (id, title, onClose) => {
         if (deleteName === willDeleteName) {
             setDeleting(true);
-            await videoDeleteHandler(id, title)
+            title == 'yes' ? await multipleDeleteHandler(id, title) : await videoDeleteHandler(id, title);
             onClose()
         } else {
             setWillDeleteName('');
@@ -113,13 +168,25 @@ export default function AdminAllVideosTable({ allVideos, fetchAllVideos }) {
         try {
             const allMemesCollection = collection(db, "allmemes");
             const allMemesDocRef = doc(allMemesCollection, id);
-            
+
             // Extract image URL from document data
             const docSnapshot = await getDoc(allMemesDocRef);
-            const imageURL = docSnapshot.data().image; // Replace 'imageURL' with actual field name
-            const imageRef = ref(storage, imageURL); // Create a reference to the image
-
-            await deleteObject(imageRef)
+            let mediaURL = '';
+            if (docSnapshot.data()?.image?.length > 0) {
+                mediaURL = docSnapshot.data()?.image; // Replace 'mediaURL' with actual field name
+            } else if (docSnapshot.data()?.video?.length > 0) {
+                mediaURL = docSnapshot.data()?.video; // Replace 'mediaURL' with actual field name
+            } else {
+                console.log("something went wrong babu bhaiya")
+            }
+            if (mediaURL) {
+                const imageRef = ref(storage, mediaURL); // Create a reference to the image
+                try {
+                    await deleteObject(imageRef)
+                } catch (error) {
+                    console.info(error.code)
+                }
+            }
             await deleteDoc(allMemesDocRef);
             toast.success(`Video "${title}" deleted with ID: ${id}`);
             fetchAllVideos();
@@ -188,23 +255,32 @@ export default function AdminAllVideosTable({ allVideos, fetchAllVideos }) {
             case "title":
                 return (
                     <User
+                        classNames={{
+                            base: "*:first:*:uppercase *:first:*:font-bold"
+                        }}
                         avatarProps={{ radius: "lg", src: user?.image }}
                         description={<div className='flex'>
-                            {user?.categories?.map((category) =>
+                            {user?.category?.map((data) =>
                                 <Chip
-                                    key={category}
+                                    key={data}
                                     variant="faded"
                                     color="success"
                                     size="sm"
                                     className='mr-1 my-1'
                                 >
-                                    {category}
+                                    {ReturnCategoryName(data)}
                                 </Chip>
                             )}
                         </div>}
                         name={cellValue}
                     >
                     </User>
+                );
+            case "url":
+                return (
+                    <Link href={cellValue} target="_blank">
+                        {cellValue}
+                    </Link>
                 );
             case "status":
                 return (
@@ -217,8 +293,8 @@ export default function AdminAllVideosTable({ allVideos, fetchAllVideos }) {
                     <div className="relative flex justify-end items-center gap-2">
                         <Dropdown>
                             <DropdownTrigger>
-                                <Button isIconOnly size="sm" variant="light">
-                                    <VerticalDotsIcon className="text-default-300" />
+                                <Button isIconOnly size="sm" variant="light" className='bg-primary/10 dark:bg-purple-600/10 text-primary dark:text-purple-600'>
+                                    <VerticalDotsIcon />
                                 </Button>
                             </DropdownTrigger>
                             <DropdownMenu>
@@ -325,26 +401,51 @@ export default function AdminAllVideosTable({ allVideos, fetchAllVideos }) {
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button as={Link} href='/admin/all-videos/add' color="primary" endContent={<PlusIcon />}>
-                            Add New
-                        </Button>
+                        {
+                            selectedKeys?.size == 0 ?
+                                <Button as={Link} href='/admin/all-videos/add' className='bg-primary dark:bg-purple-600 text-white' endContent={<PlusIcon />}>
+                                    Add New
+                                </Button>
+                                :
+                                <>
+                                    {!deleting ?
+                                        <Button color="danger"
+                                            onPress={() => {
+                                                onOpen()
+                                                setDeleteId(selectedKeys)
+                                                setDeleteName('yes')
+                                            }}
+                                            startContent={<DeleteIcon className="size-5" />}>
+                                            Delete
+                                        </Button>
+                                        :
+                                        <Button color="danger" isLoading className='[&_[aria-label=Loading]>*]:size-4'>
+                                            Deleting
+                                        </Button>
+                                    }
+                                </>
+                        }
                     </div>
                 </div>
-                <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {allVideos.length} videos</span>
-                    <label className="flex items-center text-default-400 text-small">
-                        Rows per page:
-                        <select
-                            className="bg-transparent outline-none text-default-400 text-small"
-                            value={rowsPerPage}
-                            onChange={onRowsPerPageChange}
-                        >
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                        </select>
-                    </label>
-                </div>
+                {!hideTableLength ?
+                    <div className="flex justify-between items-center">
+                        <span className="text-default-400 text-small">Total {allVideos.length} videos</span>
+                        <label className="flex items-center text-default-400 text-small">
+                            Rows per page:
+                            <select
+                                className="bg-transparent outline-none text-default-400 text-small"
+                                value={rowsPerPage}
+                                onChange={onRowsPerPageChange}
+                            >
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                            </select>
+                        </label>
+                    </div>
+                    :
+                    <></>
+                }
             </div>
         );
     }, [
@@ -355,6 +456,10 @@ export default function AdminAllVideosTable({ allVideos, fetchAllVideos }) {
         allVideos.length,
         onSearchChange,
         hasSearchFilter,
+        selectedKeys,
+        deleting,
+        multipleDeleteHandler,
+        onClear
     ]);
 
     const bottomContent = React.useMemo(() => {
@@ -391,11 +496,13 @@ export default function AdminAllVideosTable({ allVideos, fetchAllVideos }) {
             <Table
                 aria-label="Example table with custom cells, pagination and sorting"
                 isHeaderSticky
-                bottomContent={bottomContent}
+                bottomContent={!hideFooter ? bottomContent : null}
                 bottomContentPlacement="outside"
                 // classNames={{
                 //     wrapper: "max-h-[382px]",
                 // }}
+
+                color={"secondary"}
                 selectedKeys={selectedKeys}
                 selectionMode="multiple"
                 sortDescriptor={sortDescriptor}
@@ -415,7 +522,21 @@ export default function AdminAllVideosTable({ allVideos, fetchAllVideos }) {
                         </TableColumn>
                     )}
                 </TableHeader>
-                <TableBody emptyContent={"No videos found"} items={sortedItems}>
+                <TableBody
+                    isLoading={isLoading}
+                    loadingContent={<Spinner label="Loading..." />}
+                    emptyContent={
+                        <div className='py-12 px-4'>
+                            <div className='text-center'>
+                                <svg className="size-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
+                                <h3 className="mt-1 text-lg font-semibold">No Videos</h3>
+                                <p className="text-sm font-normal mb-2">Get started by uploading a new video.</p>
+                                <Button as={Link} href='/admin/all-videos/add'><PlusIcon className="size-4" /> Upload Video</Button>
+                            </div>
+                        </div>
+                    }
+                    items={sortedItems}
+                >
                     {(item) => (
                         <TableRow key={item?.id}>
                             {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}

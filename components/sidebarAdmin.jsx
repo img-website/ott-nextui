@@ -29,7 +29,7 @@ const SidebarAdmin = ({ sidebarIsOpen, setSidebarIsOpen }) => {
                         <div className='flex flex-col overflow-auto h-full pr-5'>
                             {
                                 sideLinks?.map(link => (
-                                    <Link href={link?.href} key={link?.href} className={`flex items-center sm:gap-3 gap-2 py-3 px-4 rounded-lg text-zinc-600 md:hover:bg-zinc-100 dark:text-zinc-300 dark:md:hover:text-white dark:md:hover:bg-zinc-900 duration-300 font-medium ${pathname == link.href ? '!text-white !bg-primary' : ''}`}>
+                                    <Link href={link?.href} key={link?.href} className={`flex items-center sm:gap-3 gap-2 py-3 px-4 rounded-lg text-zinc-600 md:hover:bg-zinc-100 dark:text-zinc-300 dark:md:hover:text-white dark:md:hover:bg-zinc-900 duration-300 font-medium ${pathname == link.href ? '!text-white !bg-primary dark:!bg-purple-600' : ''}`}>
                                         <div className="icon xl:*:size-5 *:size-4">
                                             {link.icon && <link.icon />}
                                         </div>

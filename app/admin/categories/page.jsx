@@ -8,14 +8,17 @@ import ProtectedRoute from '@/components/protected/ProtectedRoute';
 
 const CategoriesPage = () => {
 	const [allCategories, setAllCategories] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(true);
 
 	const fetchAllCategories = async () => {
+		setIsLoading(true);
 		try {
 			const categoriesData = await getAllData('category');
 			setAllCategories(categoriesData);
-			// console.info(categoriesData);
 		} catch (error) {
 			toast.error(error.message)
+		} finally {
+			setIsLoading(false);
 		}
 	}
 
@@ -25,7 +28,7 @@ const CategoriesPage = () => {
 	return (
 		<ProtectedRoute>
 			<AdminLayout>
-				<AdminAllCategoryTable allCategories={allCategories} setAllCategories={setAllCategories} fetchAllCategories={fetchAllCategories} />
+				<AdminAllCategoryTable allCategories={allCategories} setAllCategories={setAllCategories} fetchAllCategories={fetchAllCategories} isLoading={isLoading} />
 			</AdminLayout>
 		</ProtectedRoute>
 	)

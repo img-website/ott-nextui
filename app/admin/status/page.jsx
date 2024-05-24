@@ -8,14 +8,17 @@ import ProtectedRoute from '@/components/protected/ProtectedRoute';
 
 const StatusPage = () => {
 	const [allStatus, setAllStatus] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(true);
 
 	const fetchAllStatus = async () => {
+		setIsLoading(true);
 		try {
 			const statusData = await getAllData('status');
 			setAllStatus(statusData);
-			// console.info(statusData);
 		} catch (error) {
 			toast.error(error.message)
+		} finally {
+			setIsLoading(false);
 		}
 	}
 
@@ -25,7 +28,7 @@ const StatusPage = () => {
 	return (
 		<ProtectedRoute>
 			<AdminLayout>
-				<AdminAllStatusTable allStatus={allStatus} fetchAllStatus={fetchAllStatus} />
+				<AdminAllStatusTable allStatus={allStatus} fetchAllStatus={fetchAllStatus} isLoading={isLoading} />
 			</AdminLayout>
 		</ProtectedRoute>
 	)

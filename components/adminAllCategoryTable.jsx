@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { ChevronDownIcon, DeleteIcon, EditIcon, PlusIcon, SearchIcon, TrendingIcon, VerticalDotsIcon } from '@/components/icons';
+import { CategoryIcon, ChevronDownIcon, DeleteIcon, EditIcon, PlusIcon, SearchIcon, TrendingIcon, VerticalDotsIcon } from '@/components/icons';
 import { Button } from '@nextui-org/button';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/dropdown';
 import { Input } from '@nextui-org/input';
@@ -11,11 +11,12 @@ import { Chip } from '@nextui-org/chip';
 import Link from 'next/link';
 import { Snippet } from '@nextui-org/snippet';
 import toast from 'react-hot-toast';
-import { collection, deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
 import { db, storage } from '@/app/firebase/firebase';
 import DeleteConfirmModal from './modal/deleteConfirmModal';
 import { useDisclosure } from '@nextui-org/modal';
 import { deleteObject, ref } from 'firebase/storage';
+import { Spinner } from '@nextui-org/spinner';
 
 const columns = [
     { name: "CATEGORY ID", uid: "id", sortable: true },
@@ -40,10 +41,12 @@ const statusColorMap = {
 
 const INITIAL_VISIBLE_COLUMNS = ["categoryName", "status", "actions"];
 
-export default function AdminAllCategoryTable({ allCategories, fetchAllCategories }) {
+export default function AdminAllCategoryTable({ allCategories, fetchAllCategories, isLoading, hideFooter, hideTableLength }) {
     const [users, setUsers] = React.useState([]);
     const [filterValue, setFilterValue] = React.useState("");
+
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
+
     const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
     const [statusFilter, setStatusFilter] = React.useState("all");
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -75,10 +78,63 @@ export default function AdminAllCategoryTable({ allCategories, fetchAllCategorie
         }
     }
 
+
+    const multipleDeleteHandler = async (ids) => {
+        setDeleting(true);
+        try {
+            const categoryCollection = collection(db, "category");
+            if (selectedKeys == "all") {
+                const querySnapshot = await getDocs(categoryCollection);
+                const idss = querySnapshot.docs.map(doc => doc.id);
+                for (const id of idss) {
+                    const categoryDocRef = doc(categoryCollection, id);
+                    const docSnapshot = await getDoc(categoryDocRef);
+                    const imageURL = docSnapshot?.data()?.image; // Replace 'imageURL' with actual field name
+                    const imageRef = ref(storage, imageURL); // Create a reference to the image
+
+                    try {
+                        await deleteObject(imageRef);
+                        await deleteDoc(categoryDocRef);
+                    } catch (error) {
+                        await deleteDoc(categoryDocRef);
+                    }
+                }
+                setSelectedKeys(0)
+                toast.success(`Deleted All Data.`);
+                fetchAllCategories();
+                setWillDeleteName('');
+                setDeleting(false);
+            } else if (typeof (selectedKeys) === "object") {
+                for (const id of ids) {
+                    const categoryDocRef = doc(categoryCollection, id);
+                    const docSnapshot = await getDoc(categoryDocRef);
+                    const imageURL = docSnapshot?.data()?.image; // Replace 'imageURL' with actual field name
+                    const imageRef = ref(storage, imageURL); // Create a reference to the image
+                    // Create a reference to the image
+                    try {
+                        await deleteObject(imageRef)
+                    } catch (error) {
+                        console.info(error.code)
+                    }
+                    await deleteDoc(categoryDocRef);
+                }
+                setSelectedKeys(0)
+                toast.success(`Deleted All Selected Data.`);
+                fetchAllCategories();
+                setWillDeleteName('');
+                setDeleting(false);
+            }
+
+        } catch (error) {
+            toast.error(error?.message);
+            setDeleting(false);
+        }
+    }
+
     const confirmDeleteModal = async (id, categoryName, onClose) => {
         if (deleteName === willDeleteName) {
             setDeleting(true);
-            await categoryDeleteHandler(id, categoryName)
+            categoryName == 'yes' ? await multipleDeleteHandler(id, categoryName) : await categoryDeleteHandler(id, categoryName);
             onClose()
         } else {
             setWillDeleteName('');
@@ -93,13 +149,16 @@ export default function AdminAllCategoryTable({ allCategories, fetchAllCategorie
         try {
             const categoryCollection = collection(db, "category");
             const categoryDocRef = doc(categoryCollection, id);
-            
+
             // Extract image URL from document data
             const docSnapshot = await getDoc(categoryDocRef);
-            const imageURL = docSnapshot.data().image; // Replace 'imageURL' with actual field name
+            const imageURL = docSnapshot?.data()?.image; // Replace 'imageURL' with actual field name
             const imageRef = ref(storage, imageURL); // Create a reference to the image
-
-            await deleteObject(imageRef)
+            try {
+                await deleteObject(imageRef)
+            } catch (error) {
+                console.info(error.code)
+            }
             await deleteDoc(categoryDocRef);
             toast.success(`Category "${categoryName}" deleted with ID: ${id}`);
             fetchAllCategories();
@@ -189,7 +248,7 @@ export default function AdminAllCategoryTable({ allCategories, fetchAllCategorie
                     <div className="relative flex justify-end items-center gap-2">
                         <Dropdown aria-label="User Actions Menu">
                             <DropdownTrigger>
-                                <Button isIconOnly size="sm" variant="light" color='primary'>
+                                <Button isIconOnly size="sm" variant="light" className='bg-primary/10 dark:bg-purple-600/10 text-primary dark:text-purple-600'>
                                     <VerticalDotsIcon />
                                 </Button>
                             </DropdownTrigger>
@@ -298,26 +357,51 @@ export default function AdminAllCategoryTable({ allCategories, fetchAllCategorie
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button as={Link} href='/admin/categories/add' color="primary" endContent={<PlusIcon />}>
-                            Add New
-                        </Button>
+                        {
+                            selectedKeys?.size == 0 ?
+                                <Button as={Link} href='/admin/categories/add' className='bg-primary dark:bg-purple-600 text-white' endContent={<PlusIcon />}>
+                                    Add New
+                                </Button>
+                                :
+                                <>
+                                    {!deleting ?
+                                        <Button color="danger"
+                                            onPress={() => {
+                                                onOpen()
+                                                setDeleteId(selectedKeys)
+                                                setDeleteName('yes')
+                                            }}
+                                            startContent={<DeleteIcon className="size-5" />}>
+                                            Delete
+                                        </Button>
+                                        :
+                                        <Button color="danger" isLoading className='[&_[aria-label=Loading]>*]:size-4'>
+                                            Deleting
+                                        </Button>
+                                    }
+                                </>
+                        }
                     </div>
                 </div>
-                <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {users?.length} categories</span>
-                    <label className="flex items-center text-default-400 text-small">
-                        Rows per page:
-                        <select
-                            className="bg-transparent outline-none text-default-400 text-small"
-                            value={rowsPerPage}
-                            onChange={onRowsPerPageChange}
-                        >
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                        </select>
-                    </label>
-                </div>
+                {!hideTableLength ?
+                    <div className="flex justify-between items-center">
+                        <span className="text-default-400 text-small">Total {users?.length} categories</span>
+                        <label className="flex items-center text-default-400 text-small">
+                            Rows per page:
+                            <select
+                                className="bg-transparent outline-none text-default-400 text-small"
+                                value={rowsPerPage}
+                                onChange={onRowsPerPageChange}
+                            >
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                            </select>
+                        </label>
+                    </div>
+                    :
+                    <></>
+                }
             </div>
         );
     }, [
@@ -328,6 +412,10 @@ export default function AdminAllCategoryTable({ allCategories, fetchAllCategorie
         users?.length,
         onSearchChange,
         hasSearchFilter,
+        selectedKeys,
+        deleting,
+        multipleDeleteHandler,
+        onClear
     ]);
 
     const bottomContent = React.useMemo(() => {
@@ -364,11 +452,12 @@ export default function AdminAllCategoryTable({ allCategories, fetchAllCategorie
             <Table
                 aria-label="Example table with custom cells, pagination and sorting"
                 isHeaderSticky
-                bottomContent={bottomContent}
+                bottomContent={!hideFooter ? bottomContent : null}
                 bottomContentPlacement="outside"
                 // classNames={{
                 //     wrapper: "max-h-[382px]",
                 // }}
+                color={"secondary"}
                 selectedKeys={selectedKeys}
                 selectionMode="multiple"
                 sortDescriptor={sortDescriptor}
@@ -388,7 +477,20 @@ export default function AdminAllCategoryTable({ allCategories, fetchAllCategorie
                         </TableColumn>
                     )}
                 </TableHeader>
-                <TableBody emptyContent={"No categories found"} items={sortedItems}>
+                <TableBody
+                    isLoading={isLoading}
+                    loadingContent={<Spinner label="Loading..." />}
+                    emptyContent={
+                        <div className='py-12 px-4'>
+                            <div className='text-center'>
+                                <CategoryIcon className="size-8 mx-auto" />
+                                <h3 className="mt-1 text-lg font-semibold">No Category</h3>
+                                <p className="text-sm font-normal mb-2">Get started by adding a new category.</p>
+                                <Button as={Link} href='/admin/categories/add'><PlusIcon className="size-4" /> Add Category</Button>
+                            </div>
+                        </div>
+                    }
+                    items={sortedItems}>
                     {(item) => (
                         <TableRow key={item?.id}>
                             {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}

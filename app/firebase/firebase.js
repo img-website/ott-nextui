@@ -1,4 +1,3 @@
-// import { getApp, getApps, initializeApp } from "firebase/app";
 import { initializeApp } from "firebase/app";
 import { getAuth } from 'firebase/auth'
 import { getFirestore, collection, getDocs, query, where, limit } from 'firebase/firestore'
@@ -13,7 +12,6 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-// const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app)

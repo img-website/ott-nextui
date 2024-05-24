@@ -7,7 +7,7 @@ import { Card, CardBody, CardFooter, CardHeader } from '@nextui-org/card';
 import { Divider } from '@nextui-org/divider';
 import { Input } from '@nextui-org/input';
 import { Select, SelectItem } from '@nextui-org/select';
-import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, serverTimestamp, updateDoc, where } from "firebase/firestore";
 import { db, storage } from '@/app/firebase/firebase';
 import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import toast from 'react-hot-toast';
@@ -43,7 +43,6 @@ const EditPage = ({ params }) => {
 			setInitialImageUrl(userStatus?.image);
 		} catch (error) {
 			console.log("error", error);
-		} finally {
 		}
 	}
 
@@ -58,25 +57,32 @@ const EditPage = ({ params }) => {
 		try {
 			const statusCollection = collection(db, "status");
 			const statusDocRef = doc(statusCollection, params.editId);
+
 			const body = {
 				statusName: statusName,
 				status: currentStatus,
+				modifiedAt: serverTimestamp(),
 				...(downloadURL ? { image: downloadURL } : {}),
 			}
 
-            // Extract image URL from document data
-            const docSnapshot = await getDoc(statusDocRef);
-            const imageURL = docSnapshot.data().image; // Replace 'imageURL' with actual field name
-            const imageRef = ref(storage, imageURL); // Create a reference to the image
-
-            await deleteObject(imageRef)
+			if (downloadURL) {
+				const docSnapshot = await getDoc(statusDocRef);
+				const imageURL = docSnapshot.data().image; // Replace 'imageURL' with actual field name
+				const imageRef = ref(storage, imageURL); // Create a reference to the image
+				try {
+					await deleteObject(imageRef);
+				} catch (error) {
+					console.error("Error deleting image:", error);
+				}
+			}
 
 			await updateDoc(statusDocRef, body);
+			setSelectedFile(null); // Clear file selection after upload
 			router.back()
 			toast.success(`Status Updated with ID: ${params?.editId}`);
 			setIsLoading(false);
 		} catch (error) {
-			console.log(error?.message);
+			toast.error(error?.message);
 			setIsLoading(false);
 		}
 	}
@@ -93,6 +99,7 @@ const EditPage = ({ params }) => {
 	};
 
 	const uploadFile = async (e, file) => {
+		console.log("uploadFile")
 		e.preventDefault();
 		setImgUploading(true);
 		setIsLoading(true);
@@ -101,11 +108,10 @@ const EditPage = ({ params }) => {
 			const timestamp = Date.now();
 			const originalFilename = file.name;
 			const extension = originalFilename.split('.').pop();
-			console.info(timestamp)
 			const newFilename = `${timestamp}.${extension}`;
 
 			const imagesRef = ref(storage, `/media/status/${newFilename}`);
-			const uploadTask = await uploadBytes(imagesRef, file).then((snapshot) => {
+			await uploadBytes(imagesRef, file).then((snapshot) => {
 				getDownloadURL(snapshot.ref)
 					.then((downloadURL) => {
 						submitHandler(e, downloadURL);
@@ -117,27 +123,33 @@ const EditPage = ({ params }) => {
 		} catch (error) {
 			toast.error(error?.message);
 			setIsLoading(false);
-			// Handle errors appropriately (e.g., display error message to user)
 		}
 	};
 
 	const handleUpload = async (e) => {
 		e.preventDefault();
 		setIsLoading(true);
-		// if (!selectedFile) {
-		// 	toast.error('Please select a file to upload.');
-		// 	setIsLoading(false);
-		// 	return;
-		// }
 
-		if (selectedFile) {
-			await uploadFile(e, selectedFile);
-		} else {
-			await submitHandler(e);
-
+		const q = query(collection(db, "status"), where("statusName", "==", statusName));
+		try {
+			const querySnapshot = await getDocs(q);
+			let matchWithExisting = [];
+			querySnapshot.forEach((doc) => {
+				matchWithExisting = doc.id;
+			});
+			if (matchWithExisting.length > 0) {
+				if(matchWithExisting == params?.editId) {
+					selectedFile ? await uploadFile(e, selectedFile) : await submitHandler(e)
+				} else {
+					toast.error(`Status with name ${statusName} already exists!`);
+					setIsLoading(false);
+				}
+			} else {
+				selectedFile ? await uploadFile(e, selectedFile) : await submitHandler(e)
+			}
+		} catch (error) {
+			console.log("error", error);
 		}
-
-		setSelectedFile(null); // Clear file selection after upload
 	};
 
 
@@ -189,7 +201,7 @@ const EditPage = ({ params }) => {
 							</div>
 							<div className="mb-4 sm:col-span-2">
 								<div className="flex items-center justify-center w-full">
-									<label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-64 border-2 border-zinc-300 border-dashed rounded-lg cursor-pointer bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:border-zinc-500 dark:hover:bg-zinc-600 bg-cover bg-center" style={selectedFile ? { backgroundImage: `url(${URL.createObjectURL(selectedFile)})` } : { backgroundImage: `url(${initialImageUrl})` }}>
+									<label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-64 border-2 border-zinc-300 border-dashed rounded-lg cursor-pointer bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:border-zinc-500 dark:hover:bg-zinc-900 bg-cover bg-center" style={selectedFile ? { backgroundImage: `url(${URL.createObjectURL(selectedFile)})` } : { backgroundImage: `url(${initialImageUrl})` }}>
 										<div className={`flex flex-col items-center justify-center pt-5 pb-6 backdrop-blur-lg size-full group/opacity hover:opacity-100 ${(selectedFile || initialImageUrl) ? 'opacity-0 bg-zinc-900/50' : ''}`}>
 											<UploadIcon className="size-6 text-zinc-500 group-[.opacity-0]/opacity:text-zinc-100 dark:text-zinc-400" />
 											<p className="mb-2 text-sm text-zinc-500 group-[.opacity-0]/opacity:text-zinc-100 dark:text-zinc-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>

@@ -19,8 +19,8 @@ export default function AdminPage() {
 		try {
 			await login(email, password);
 			router.push("/admin/dashboard");
-		} catch (err) {
-			console.error("Login failed:", err?.message);
+		} catch (error) {
+			console.error("Login failed:", error?.message);
 		} finally {
 			setEmail("");
 			setPassword("");

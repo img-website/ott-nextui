@@ -11,11 +11,12 @@ import { Chip } from '@nextui-org/chip';
 import Link from 'next/link';
 import { Snippet } from '@nextui-org/snippet';
 import toast from 'react-hot-toast';
-import { collection, deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
 import { db, storage } from '@/app/firebase/firebase';
 import DeleteConfirmModal from './modal/deleteConfirmModal';
 import { useDisclosure } from '@nextui-org/modal';
 import { deleteObject, ref } from 'firebase/storage';
+import { Spinner } from '@nextui-org/spinner';
 
 const columns = [
     { name: "STATUS ID", uid: "id", sortable: true },
@@ -40,7 +41,7 @@ const statusColorMap = {
 
 const INITIAL_VISIBLE_COLUMNS = ["statusName", "status", "actions"];
 
-export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
+export default function AdminAllStatusTable({ allStatus, fetchAllStatus, isLoading, hideFooter, hideTableLength }) {
     const [users, setUsers] = React.useState([]);
     const [filterValue, setFilterValue] = React.useState("");
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
@@ -74,11 +75,62 @@ export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
             toast.error(error?.message);
         }
     }
+    const multipleDeleteHandler = async (ids) => {
+        setDeleting(true);
+        try {
+            const statusCollection = collection(db, "status");
+            if (selectedKeys == "all") {
+                const querySnapshot = await getDocs(statusCollection);
+                const idss = querySnapshot.docs.map(doc => doc.id);
+                for (const id of idss) {
+                    const statusDocRef = doc(statusCollection, id);
+                    const docSnapshot = await getDoc(statusDocRef);
+                    const imageURL = docSnapshot?.data()?.image; // Replace 'imageURL' with actual field name
+                    const imageRef = ref(storage, imageURL); // Create a reference to the image
+
+                    try {
+                        await deleteObject(imageRef);
+                        await deleteDoc(statusDocRef);
+                    } catch (error) {
+                        await deleteDoc(statusDocRef);
+                    }
+                }
+                setSelectedKeys(0)
+                toast.success(`Deleted All Data.`);
+                fetchAllStatus();
+                setWillDeleteName('');
+                setDeleting(false);
+            } else if (typeof (selectedKeys) === "object") {
+                for (const id of ids) {
+                    const statusDocRef = doc(statusCollection, id);
+                    const docSnapshot = await getDoc(statusDocRef);
+                    const imageURL = docSnapshot?.data()?.image; // Replace 'imageURL' with actual field name
+                    const imageRef = ref(storage, imageURL); // Create a reference to the image
+
+                    try {
+                        await deleteObject(imageRef)
+                    } catch (error) {
+                        console.info(error.code)
+                    }
+                    await deleteDoc(statusDocRef);
+                }
+                setSelectedKeys(0)
+                toast.success(`Deleted All Selected Data.`);
+                fetchAllStatus();
+                setWillDeleteName('');
+                setDeleting(false);
+            }
+
+        } catch (error) {
+            toast.error(error?.message);
+            setDeleting(false);
+        }
+    }
 
     const confirmDeleteModal = async (id, statusName, onClose) => {
         if (deleteName === willDeleteName) {
             setDeleting(true);
-            await statusDeleteHandler(id, statusName)
+            statusName == 'yes' ? await multipleDeleteHandler(id, statusName) : await statusDeleteHandler(id, statusName);
             onClose()
         } else {
             setWillDeleteName('');
@@ -92,14 +144,17 @@ export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
         try {
             const statusCollection = collection(db, "status");
             const statusDocRef = doc(statusCollection, id);
-            
+
             // Extract image URL from document data
             const docSnapshot = await getDoc(statusDocRef);
             const imageURL = docSnapshot.data().image; // Replace 'imageURL' with actual field name
             const imageRef = ref(storage, imageURL); // Create a reference to the image
-
-            await deleteObject(imageRef)
-
+            // Create a reference to the image
+            try {
+                await deleteObject(imageRef)
+            } catch (error) {
+                console.info(error.code)
+            }
             await deleteDoc(statusDocRef);
             toast.success(`Status "${statusName}" deleted with ID: ${id}`);
             fetchAllStatus();
@@ -137,7 +192,6 @@ export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
                 Array.from(statusFilter).includes(user?.status),
             );
         }
-
         return filteredUsers;
     }, [users, filterValue, statusFilter]);
 
@@ -158,6 +212,8 @@ export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
 
             return sortDescriptor.direction === "descending" ? -cmp : cmp;
         });
+
+
     }, [sortDescriptor, items]);
 
     const renderCell = React.useCallback((user, columnKey) => {
@@ -188,7 +244,7 @@ export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
                     <div className="relative flex justify-end items-center gap-2">
                         <Dropdown aria-label="User Actions Menu">
                             <DropdownTrigger>
-                                <Button isIconOnly size="sm" variant="light" color='primary'>
+                                <Button isIconOnly size="sm" variant="light" className='bg-primary/10 dark:bg-purple-600/10 text-primary dark:text-purple-600'>
                                     <VerticalDotsIcon />
                                 </Button>
                             </DropdownTrigger>
@@ -297,26 +353,51 @@ export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button as={Link} href='/admin/status/add' color="primary" endContent={<PlusIcon />}>
-                            Add New
-                        </Button>
+                        {
+                            selectedKeys?.size == 0 ?
+                                <Button as={Link} href='/admin/status/add' className='bg-primary dark:bg-purple-600 text-white' endContent={<PlusIcon />}>
+                                    Add New
+                                </Button>
+                                :
+                                <>
+                                    {!deleting ?
+                                        <Button color="danger"
+                                            onPress={() => {
+                                                onOpen()
+                                                setDeleteId(selectedKeys)
+                                                setDeleteName('yes')
+                                            }}
+                                            startContent={<DeleteIcon className="size-5" />}>
+                                            Delete
+                                        </Button>
+                                        :
+                                        <Button color="danger" isLoading className='[&_[aria-label=Loading]>*]:size-4'>
+                                            Deleting
+                                        </Button>
+                                    }
+                                </>
+                        }
                     </div>
                 </div>
-                <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {users?.length} status</span>
-                    <label className="flex items-center text-default-400 text-small">
-                        Rows per page:
-                        <select
-                            className="bg-transparent outline-none text-default-400 text-small"
-                            value={rowsPerPage}
-                            onChange={onRowsPerPageChange}
-                        >
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                        </select>
-                    </label>
-                </div>
+                {!hideTableLength ?
+                    <div className="flex justify-between items-center">
+                        <span className="text-default-400 text-small">Total {users?.length} status</span>
+                        <label className="flex items-center text-default-400 text-small">
+                            Rows per page:
+                            <select
+                                className="bg-transparent outline-none text-default-400 text-small"
+                                value={rowsPerPage}
+                                onChange={onRowsPerPageChange}
+                            >
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                            </select>
+                        </label>
+                    </div>
+                    :
+                    <></>
+                }
             </div>
         );
     }, [
@@ -327,6 +408,10 @@ export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
         users?.length,
         onSearchChange,
         hasSearchFilter,
+        selectedKeys,
+        deleting,
+        multipleDeleteHandler,
+        onClear
     ]);
 
     const bottomContent = React.useMemo(() => {
@@ -363,11 +448,12 @@ export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
             <Table
                 aria-label="Example table with custom cells, pagination and sorting"
                 isHeaderSticky
-                bottomContent={bottomContent}
+                bottomContent={!hideFooter ? bottomContent : null}
                 bottomContentPlacement="outside"
                 // classNames={{
                 //     wrapper: "max-h-[382px]",
                 // }}
+                color={"secondary"}
                 selectedKeys={selectedKeys}
                 selectionMode="multiple"
                 sortDescriptor={sortDescriptor}
@@ -387,7 +473,20 @@ export default function AdminAllStatusTable({ allStatus, fetchAllStatus }) {
                         </TableColumn>
                     )}
                 </TableHeader>
-                <TableBody emptyContent={"No status found"} items={sortedItems}>
+                <TableBody
+                    isLoading={isLoading}
+                    loadingContent={<Spinner label="Loading..." />}
+                    emptyContent={
+                        <div className='py-12 px-4'>
+                            <div className='text-center'>
+                                <TrendingIcon className="size-8 mx-auto" />
+                                <h3 className="mt-1 text-lg font-semibold">No Status</h3>
+                                <p className="text-sm font-normal mb-2">Get started by adding a new status.</p>
+                                <Button as={Link} href='/admin/status/add'><PlusIcon className="size-4" /> Add Status</Button>
+                            </div>
+                        </div>
+                    }
+                    items={sortedItems}>
                     {(item) => (
                         <TableRow key={item?.id}>
                             {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
