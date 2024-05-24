@@ -52,7 +52,7 @@ const NavbarAdmin = ({ sidebarIsOpen, setSidebarIsOpen }) => {
                                 as="button"
                                 avatarProps={{
                                     isBordered: true,
-                                    src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+                                    src: "https://i.pravatar.cc/150",
                                 }}
                                 classNames={{
                                     base: "base-classes",
@@ -60,8 +60,8 @@ const NavbarAdmin = ({ sidebarIsOpen, setSidebarIsOpen }) => {
                                     name: "name-classes",
                                     description: "description-classes",
                                 }}
-                                description="@tonyreichert"
-                                name="Tony Reichert"
+                                description="@admin"
+                                name="Welcome Admin"
                             />
                         </DropdownTrigger>
                         <DropdownMenu

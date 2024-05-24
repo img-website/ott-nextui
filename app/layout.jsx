@@ -39,7 +39,6 @@ export default function RootLayout({
 				<AuthUserProvider>
 					<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
 						{children}
-						<div id="modal-root" />
 					</Providers>
 				</AuthUserProvider>
 				<Toaster

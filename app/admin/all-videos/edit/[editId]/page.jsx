@@ -256,7 +256,7 @@ const EditPage = ({ params }) => {
 									size="lg"
 									variant="bordered"
 									description={
-										!categoryGetData?.length ? <div className='text-white'>Categories not found <Link className='text-primary font-bold' href={'/admin/categories/add'}>Add Category</Link></div> : ''
+										!categoryGetData?.length ? <div className='text-white'>Categories not found <Link className='text-primary dark:text-purple-500 font-bold' href={'/admin/categories/add'}>Add Category</Link></div> : ''
 									}
 									startContent={<CategoryIcon className="size-4" />}
 									id="category"
@@ -284,7 +284,7 @@ const EditPage = ({ params }) => {
 									size="lg"
 									variant="bordered"
 									description={
-										!statusGetData?.length ? <div className='text-white'>Status not found <Link className='text-primary font-bold' href={'/admin/status/add'}>Add Category</Link></div> : ''
+										!statusGetData?.length ? <div className='text-white'>Status not found <Link className='text-primary dark:text-purple-500 font-bold' href={'/admin/status/add'}>Add Category</Link></div> : ''
 									}
 									startContent={<TrendingIcon className="size-4" />}
 									id="statuss"

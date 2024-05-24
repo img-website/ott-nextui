@@ -1,14 +1,15 @@
 "use client"
-import React from 'react'
+import React, { Suspense } from 'react'
 import AdminLayout from '@/app/_layouts/AdminLayout'
 import { getAllData } from '@/app/firebase/firebase';
 import AdminAllStatusTable from '@/components/adminAllStatusTable'
 import toast from 'react-hot-toast';
 import ProtectedRoute from '@/components/protected/ProtectedRoute';
+import Loading from '@/app/admin/loading';
 
 const StatusPage = () => {
 	const [allStatus, setAllStatus] = React.useState([]);
-    const [isLoading, setIsLoading] = React.useState(true);
+	const [isLoading, setIsLoading] = React.useState(true);
 
 	const fetchAllStatus = async () => {
 		setIsLoading(true);
@@ -28,7 +29,9 @@ const StatusPage = () => {
 	return (
 		<ProtectedRoute>
 			<AdminLayout>
-				<AdminAllStatusTable allStatus={allStatus} fetchAllStatus={fetchAllStatus} isLoading={isLoading} />
+				<Suspense fallback={<Loading />}>
+					<AdminAllStatusTable allStatus={allStatus} fetchAllStatus={fetchAllStatus} isLoading={isLoading} />
+				</Suspense>
 			</AdminLayout>
 		</ProtectedRoute>
 	)

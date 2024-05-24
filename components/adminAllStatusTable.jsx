@@ -475,7 +475,14 @@ export default function AdminAllStatusTable({ allStatus, fetchAllStatus, isLoadi
                 </TableHeader>
                 <TableBody
                     isLoading={isLoading}
-                    loadingContent={<Spinner label="Loading..." />}
+                    loadingContent={<Spinner size="xl" label="Loading..."
+                        classNames={
+                            {
+                                circle1: 'border-b-primary dark:border-b-secondary',
+                                circle2: 'border-b-primary dark:border-b-secondary',
+                            }
+                        }
+                    />}
                     emptyContent={
                         <div className='py-12 px-4'>
                             <div className='text-center'>

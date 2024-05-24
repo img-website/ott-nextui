@@ -10,7 +10,8 @@ import { Card, CardBody, CardHeader } from '@nextui-org/card';
 import { Divider } from '@nextui-org/divider';
 import { collection, getDocs, limit, orderBy, query } from 'firebase/firestore';
 import Link from 'next/link';
-import React, { use } from 'react'
+import React, { Suspense } from 'react'
+import Loading from '@/app/admin/loading';
 
 const DashboardPage = () => {
 	const [allVideos, setAllVideos] = React.useState([])
@@ -83,9 +84,13 @@ const DashboardPage = () => {
 					<div className="overflow-x-hidden overflow-y-auto">
 						<ul className="flex flex-nowrap overflow-x-auto overflow-y-hidden items-stretch -mx-3">
 							<li className='w-1/3 max-md:min-w-72 p-3 relative group'>
-								<div className="max-w-sm p-6 border rounded-lg shadow h-full text-zinc-600 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700">
+								<div className="max-w-sm p-6 border rounded-lg shadow h-full text-zinc-600 dark:text-zinc-100 bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700">
 									<div className="flex justify-between items-center">
-										<div className='font-extrabold text-3xl'>{tatalVideoLength}</div>
+										<div className='font-extrabold text-3xl'>
+											<Suspense fallback={<Loading />}>
+												{tatalVideoLength}
+											</Suspense>
+										</div>
 										<VideoAddIcon className='size-10 mb-3 text-primary dark:text-purple-500' />
 									</div>
 									<Link href="/admin/all-videos" className='before:absolute before:inset-0'>
@@ -98,9 +103,13 @@ const DashboardPage = () => {
 								</div>
 							</li>
 							<li className='w-1/3 max-md:min-w-72 p-3 relative group'>
-								<div className="max-w-sm p-6 border rounded-lg shadow h-full text-zinc-600 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700">
+								<div className="max-w-sm p-6 border rounded-lg shadow h-full text-zinc-600 dark:text-zinc-100 bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700">
 									<div className="flex justify-between items-center">
-										<div className='font-extrabold text-3xl'>{tatalCategoriesLength}</div>
+										<div className='font-extrabold text-3xl'>
+											<Suspense fallback={<Loading />}>
+												{tatalCategoriesLength}
+											</Suspense>
+										</div>
 										<CategoryIcon className='size-10 mb-3 text-primary dark:text-purple-500' />
 									</div>
 									<Link href="/admin/categories" className='before:absolute before:inset-0'>
@@ -113,9 +122,13 @@ const DashboardPage = () => {
 								</div>
 							</li>
 							<li className='w-1/3 max-md:min-w-72 p-3 relative group'>
-								<div className="max-w-sm p-6 border rounded-lg shadow h-full text-zinc-600 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700">
+								<div className="max-w-sm p-6 border rounded-lg shadow h-full text-zinc-600 dark:text-zinc-100 bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700">
 									<div className="flex justify-between items-center">
-										<div className='font-extrabold text-3xl'>{tatalStatusLength}</div>
+										<div className='font-extrabold text-3xl'>
+											<Suspense fallback={<Loading />}>
+												{tatalStatusLength}
+											</Suspense>
+										</div>
 										<TrendingIcon className='size-10 mb-3 text-primary dark:text-purple-500' />
 									</div>
 									<Link href="/admin/status" className='before:absolute before:inset-0'>
@@ -141,7 +154,9 @@ const DashboardPage = () => {
 						</CardHeader>
 						<Divider />
 						<CardBody>
-							<AdminAllVideosTable allVideos={allVideos} isLoading={isVideosLoading} fetchAllVideos={fetchData} hideFooter={true} hideTableLength={true} />
+							<Suspense fallback={<Loading />}>
+								<AdminAllVideosTable allVideos={allVideos} isLoading={isVideosLoading} fetchAllVideos={fetchData} hideFooter={true} hideTableLength={true} />
+							</Suspense>
 						</CardBody>
 						<Divider />
 					</Card>
@@ -152,12 +167,14 @@ const DashboardPage = () => {
 							<CategoryIcon className='size-5 mb-3 text-primary dark:text-purple-500' />
 							<div className="flex flex-col">
 								<p className="text-md">Latest Categories</p>
-								<Link href={"/admin/all-videos"} className="text-small text-default-500">View all {tatalCategoriesLength} categories</Link>
+								<Link href={"/admin/categories"} className="text-small text-default-500">View all {tatalCategoriesLength} categories</Link>
 							</div>
 						</CardHeader>
 						<Divider />
 						<CardBody>
-							<AdminAllCategoryTable allCategories={allCategories} isLoading={isCategoriesLoading} fetchAllCategories={fetchData} hideFooter={true} hideTableLength={true} />
+							<Suspense fallback={<Loading />}>
+								<AdminAllCategoryTable allCategories={allCategories} isLoading={isCategoriesLoading} fetchAllCategories={fetchData} hideFooter={true} hideTableLength={true} />
+							</Suspense>
 						</CardBody>
 						<Divider />
 					</Card>
@@ -168,12 +185,14 @@ const DashboardPage = () => {
 							<TrendingIcon className='size-5 mb-3 text-primary dark:text-purple-500' />
 							<div className="flex flex-col">
 								<p className="text-md">Latest Status</p>
-								<Link href={"/admin/all-videos"} className="text-small text-default-500">View all {tatalStatusLength} status</Link>
+								<Link href={"/admin/status"} className="text-small text-default-500">View all {tatalStatusLength} status</Link>
 							</div>
 						</CardHeader>
 						<Divider />
 						<CardBody>
-							<AdminAllStatusTable allStatus={allStatus} isLoading={isStatusLoading} fetchAllStatus={fetchData} hideFooter={true} hideTableLength={true} />
+							<Suspense fallback={<Loading />}>
+								<AdminAllStatusTable allStatus={allStatus} isLoading={isStatusLoading} fetchAllStatus={fetchData} hideFooter={true} hideTableLength={true} />
+							</Suspense>
 						</CardBody>
 						<Divider />
 					</Card>
