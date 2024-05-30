@@ -4,9 +4,10 @@ import { fontSans } from "@/config/fonts";
 import { Providers } from "@/app/providers";
 import clsx from "clsx";
 import { Toaster } from "react-hot-toast";
-import { AuthUserProvider } from "@/context/AuthenticationContext";
+import { AppWrapper } from "@/context";
 
 export const metadata = {
+	manifest: "/manifest.json",
 	title: {
 		default: siteConfig.name,
 		template: `%s - ${siteConfig.name}`,
@@ -36,11 +37,11 @@ export default function RootLayout({
 					fontSans.variable
 				)}
 			>
-				<AuthUserProvider>
-					<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+				<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+					<AppWrapper>
 						{children}
-					</Providers>
-				</AuthUserProvider>
+					</AppWrapper>
+				</Providers>
 				<Toaster
 					position="bottom-center"
 					reverseOrder={false}

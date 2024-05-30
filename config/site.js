@@ -8,12 +8,12 @@ export const siteConfig = {
 			href: "/",
 		},
 		{
-			label: "Admin",
-			href: "/admin",
+			label: "Signin",
+			href: "/signin",
 		},
 		{
-			label: "Dashboard",
-			href: "/admin/dashboard",
+			label: "About",
+			href: "/about",
 		},
 		{
 			label: "Status",

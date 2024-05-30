@@ -428,6 +428,44 @@ export const MenuIcon = (props) => {
 	);
 };
 
+export const BackIcon = (props) => {
+	const { width, height = 40 } = props;
+
+	return (
+		<svg
+			fill="currentColor"
+			stroke="currentColor"
+			stroke-width="0"
+			height={height}
+			viewBox="0 0 512 512"
+			width={width}
+			xmlns="http://www.w3.org/2000/svg"
+			{...props}
+		>
+			<path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M328 112 184 256l144 144"></path>
+		</svg>
+	);
+};
+
+export const ForwardIcon = (props) => {
+	const { width, height = 40 } = props;
+
+	return (
+		<svg
+			fill="currentColor"
+			stroke="currentColor"
+			stroke-width="0"
+			height={height}
+			viewBox="0 0 512 512"
+			width={width}
+			xmlns="http://www.w3.org/2000/svg"
+			{...props}
+		>
+			<path d="M294.1 256L167 129c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.3 34 0L345 239c9.1 9.1 9.3 23.7.7 33.1L201.1 417c-4.7 4.7-10.9 7-17 7s-12.3-2.3-17-7c-9.4-9.4-9.4-24.6 0-33.9l127-127.1z"></path>
+		</svg>
+	);
+};
+
 export const DashboardIcon = (props) => {
 	const { width, height = 40 } = props;
 
@@ -951,6 +989,24 @@ export const EyeSlashFilledIcon = (props) => {
 				d="M21.7689 2.22891C21.4689 1.92891 20.9789 1.92891 20.6789 2.22891L2.22891 20.6889C1.92891 20.9889 1.92891 21.4789 2.22891 21.7789C2.37891 21.9189 2.56891 21.9989 2.76891 21.9989C2.96891 21.9989 3.15891 21.9189 3.30891 21.7689L21.7689 3.30891C22.0789 3.00891 22.0789 2.52891 21.7689 2.22891Z"
 				fill="currentColor"
 			/>
+		</svg>
+	);
+};
+
+export const GoogleIcon = (props) => {
+	const { width, height = 40 } = props;
+
+	return (
+		<svg
+			aria-hidden="true"
+			fill="currentColor"
+			height={height}
+			viewBox="0 0 18 19"
+			width={width}
+			xmlns="http://www.w3.org/2000/svg"
+			{...props}
+		>
+			<path fillRule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z" clipRule="evenodd" />
 		</svg>
 	);
 };
