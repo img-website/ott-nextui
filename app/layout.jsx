@@ -9,12 +9,41 @@ import { LoadingWrapper } from "@/context/loading";
 import MainLoading from "@/components/mainLoading";
 
 export const metadata = {
-	manifest: "/manifest.json",
+	applicationName: siteConfig.name,
 	title: {
 		default: siteConfig.name,
 		template: `%s - ${siteConfig.name}`,
 	},
 	description: siteConfig.description,
+	manifest: "/manifest.json",
+
+	appleWebApp: {
+		capable: true,
+		statusBarStyle: "default",
+		title: siteConfig.name,
+		// startUpImage: [],
+	},
+	formatDetection: {
+		telephone: false,
+	},
+	openGraph: {
+		type: "website",
+		siteName: siteConfig.name,
+		title: {
+			default: siteConfig.name,
+			template: siteConfig.name,
+		},
+		description: siteConfig.description,
+	},
+	twitter: {
+		card: "summary",
+		title: {
+			default: siteConfig.name,
+			template: siteConfig.name,
+		},
+		description: siteConfig.description,
+	},
+
 	icons: {
 		icon: "/favicon.ico",
 	},
