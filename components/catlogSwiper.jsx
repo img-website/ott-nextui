@@ -26,7 +26,7 @@ const videoCategories = [
 
 const CategorySwiper = () => {
     return (
-        <Suspense fallback={"loading..."}>
+        <Suspense fallback={"Swiper loading..."}>
             <Swiper
                 className='
                     w-full !py-1

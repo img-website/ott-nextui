@@ -7,6 +7,7 @@ import { useIsSSR } from "@react-aria/ssr";
 import clsx from "clsx";
 
 import { SunFilledIcon, MoonFilledIcon } from "@/components/icons";
+import { useLoadingContext } from "@/context/loading";
 
 export const ThemeSwitch = ({
 	className,
@@ -14,9 +15,18 @@ export const ThemeSwitch = ({
 }) => {
 	const { theme, setTheme } = useTheme();
 	const isSSR = useIsSSR();
+	const { setIsLoading, setLoadingText } = useLoadingContext();
 
 	const onChange = () => {
-		theme === "light" ? setTheme("dark") : setTheme("light");
+		setLoadingText("Switching theme...");
+		setIsLoading(true);
+		setTimeout(() => {
+			theme === "light" ? setTheme("dark") : setTheme("light");
+		}, 500);
+		setTimeout(() => {
+			setLoadingText("Loading UI...");
+			setIsLoading(false);
+		}, 1000);
 	};
 
 	const {

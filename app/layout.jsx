@@ -5,6 +5,8 @@ import { Providers } from "@/app/providers";
 import clsx from "clsx";
 import { Toaster } from "react-hot-toast";
 import { AppWrapper } from "@/context";
+import { LoadingWrapper } from "@/context/loading";
+import MainLoading from "@/components/mainLoading";
 
 export const metadata = {
 	manifest: "/manifest.json",
@@ -39,7 +41,10 @@ export default function RootLayout({
 			>
 				<Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
 					<AppWrapper>
-						{children}
+						<LoadingWrapper>
+							<MainLoading />
+							{children}
+						</LoadingWrapper>
 					</AppWrapper>
 				</Providers>
 				<Toaster

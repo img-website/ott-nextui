@@ -435,7 +435,7 @@ export const BackIcon = (props) => {
 		<svg
 			fill="currentColor"
 			stroke="currentColor"
-			stroke-width="0"
+			strokeWidth="0"
 			height={height}
 			viewBox="0 0 512 512"
 			width={width}
@@ -454,7 +454,7 @@ export const ForwardIcon = (props) => {
 		<svg
 			fill="currentColor"
 			stroke="currentColor"
-			stroke-width="0"
+			strokeWidth="0"
 			height={height}
 			viewBox="0 0 512 512"
 			width={width}

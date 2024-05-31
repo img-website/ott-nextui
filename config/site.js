@@ -1,68 +1,37 @@
+import { CategoryAddIcon, CategoryIcon, DashboardIcon, HeartFilledIcon, LogoutIcon, TrendingAddIcon, TrendingIcon, VideoAddIcon, VideoLibraryIcon } from "@/components/icons";
 
 export const siteConfig = {
-	name: "Next.js + NextUI",
+	name: "OTT Platform",
+	short_name: "OTT",
+	title: "OTT Platform",
 	description: "Make beautiful websites regardless of your design experience.",
 	navItems: [
-		{
-			label: "Home",
-			href: "/",
-		},
-		{
-			label: "Signin",
-			href: "/signin",
-		},
-		{
-			label: "About",
-			href: "/about",
-		},
-		{
-			label: "Status",
-			href: "/admin/status",
-		},
-		{
-			label: "Catelog",
-			href: "/admin/categories",
-		}
+        { href: '/', label: 'Dashboard', icon: DashboardIcon, isAuthenticaed: false },
+        { href: '/wishlist', label: 'Wishlist', icon: HeartFilledIcon, isAuthenticaed: true },
+        { href: '/all-videos', label: 'All Videos', icon: VideoLibraryIcon, isAuthenticaed: false },
+        { href: '/all-videos/add', label: 'Add Video', icon: VideoAddIcon, isAuthenticaed: true },
+        { href: '/categories', label: 'Categories', icon: CategoryIcon, isAuthenticaed: false },
+        { href: '/categories/add', label: 'Add Category', icon: CategoryAddIcon, isAuthenticaed: true },
+        { href: '/status', label: 'Status', icon: TrendingIcon, isAuthenticaed: false },
+        { href: '/status/add', label: 'Add Status', icon: TrendingAddIcon, isAuthenticaed: true },
+        { href: '/about', label: 'About', icon: LogoutIcon, isAuthenticaed: false }
 	],
 	navMenuItems: [
-		{
-			label: "Profile",
-			href: "/profile",
-		},
-		{
-			label: "Dashboard",
-			href: "/dashboard",
-		},
-		{
-			label: "Projects",
-			href: "/projects",
-		},
-		{
-			label: "Team",
-			href: "/team",
-		},
-		{
-			label: "Calendar",
-			href: "/calendar",
-		},
-		{
-			label: "Settings",
-			href: "/settings",
-		},
-		{
-			label: "Help & Feedback",
-			href: "/help-feedback",
-		},
-		{
-			label: "Logout",
-			href: "/logout",
-		},
+        { href: '/', label: 'Dashboard', icon: DashboardIcon, isAuthenticaed: false },
+        { href: '/wishlist', label: 'Wishlist', icon: HeartFilledIcon, isAuthenticaed: true },
+        { href: '/all-videos', label: 'All Videos', icon: VideoLibraryIcon, isAuthenticaed: false },
+        { href: '/all-videos/add', label: 'Add Video', icon: VideoAddIcon, isAuthenticaed: true },
+        { href: '/categories', label: 'Categories', icon: CategoryIcon, isAuthenticaed: false },
+        { href: '/categories/add', label: 'Add Category', icon: CategoryAddIcon, isAuthenticaed: true },
+        { href: '/status', label: 'Status', icon: TrendingIcon, isAuthenticaed: false },
+        { href: '/status/add', label: 'Add Status', icon: TrendingAddIcon, isAuthenticaed: true },
+        { href: '/about', label: 'About', icon: LogoutIcon, isAuthenticaed: false }
 	],
 	links: {
-		github: "https://github.com/nextui-org/nextui",
-		twitter: "https://twitter.com/getnextui",
+		github: "https://github.com",
+		twitter: "https://twitter.com",
 		docs: "https://nextui.org",
-		discord: "https://discord.gg/9b6yyZKmH4",
-		sponsor: "https://patreon.com/jrgarciadev"
+		discord: "https://discord.gg",
+		sponsor: "https://patreon.com"
 	},
 };

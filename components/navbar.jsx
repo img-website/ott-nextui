@@ -58,7 +58,7 @@ export const Navbar = () => {
 					justify="center"
 				>
 					<NavbarItem className="flex w-full">
-						<Suspense fallback={"Loading..."}>
+						<Suspense fallback={"SearchInput Loading..."}>
 							<SearchInput />
 						</Suspense>
 					</NavbarItem>
@@ -84,7 +84,7 @@ export const Navbar = () => {
 							</Link>
 						</NavbarItem>
 						<NavbarItem className="flex gap-2 grow">
-							<Suspense fallback={"Loading..."}>
+							<Suspense fallback={"SearchInput Loading..."}>
 								<SearchInput />
 							</Suspense>
 						</NavbarItem>
@@ -107,7 +107,7 @@ export const Navbar = () => {
 
 				{/* <NavbarMenu>
 				
-				<Suspense fallback={"Loading..."}>
+				<Suspense fallback={"SearchInput Loading..."}>
 					<SearchInput />
 				</Suspense>
 				

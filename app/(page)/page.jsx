@@ -57,19 +57,19 @@ const HomePage = () => {
     ]
     return (
         <>
-            <Suspense fallback={"loading..."}>
+            <Suspense fallback={"CategorySwiper loading..."}>
                 <div className="sticky top-0 z-30 bg-white dark:bg-zinc-950 pb-2">
                     <CategorySwiper />
                 </div>
             </Suspense>
-            <Suspense fallback={"loading..."}>
+            <Suspense fallback={"VideoCardsSection loading..."}>
                 <VideoCardsSection content={content} sectionName={{
                     icon: VideoAddIcon,
                     title: "New Shorts",
                     url: "/new-shorts"
                 }} />
             </Suspense>
-            <Suspense fallback={"loading..."}>
+            <Suspense fallback={"VideoCardsSection loading..."}>
                 <VideoCardsSection className={"pt-8 pb-4"} content={content} sectionName={{
                     icon: TrendingIcon,
                     title: "All Trending",

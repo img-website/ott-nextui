@@ -1,14 +1,13 @@
 "use client"
+import React from 'react'
 import { db } from '@/app/firebase/firebase';
 import { useAppContext } from '@/context';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import React from 'react'
 
 const UserDetails = () => {
     const { setCredential } = useAppContext();
 
     const [uid, setUid] = React.useState('');
-
 
     const getUserDetail = async () => {
         try {
@@ -26,7 +25,7 @@ const UserDetails = () => {
                 photoURL: signedInUser?.photoURL
             }))
         } catch (error) {
-            
+
         }
     }
 
@@ -39,13 +38,11 @@ const UserDetails = () => {
         }
     }, []);
 
+
+
     React.useEffect(() => {
         getUserDetail()
     }, [uid])
-
-    return (
-        <></>
-    )
 }
 
 export default UserDetails
