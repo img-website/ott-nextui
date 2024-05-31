@@ -6,6 +6,7 @@ export function LoadingWrapper({ children }) {
     const [isLoading, setIsLoading] = useState(true);
     const [loadingText, setLoadingText] = useState("Loading UI...");
     const [trySignin, setTrySignin] = useState(false);
+    
 
     useEffect(() => {
         if (trySignin == "true") {

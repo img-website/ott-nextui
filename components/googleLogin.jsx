@@ -52,6 +52,10 @@ const GoogleLogin = () => {
                     photoURL: signedInUser?.photoURL
                 }))
                 await createFirestoreUser(signedInUser, token);
+            } else {
+                setIsLoading(false);
+                setLoadingText("Loading UI...");
+                localStorage.removeItem("try_signin");
             }
         } catch (error) {
             console.error("Error handling redirect:", error);
@@ -102,29 +106,31 @@ const GoogleLogin = () => {
         e.preventDefault();
         setIsLoading(true);
         setLoadingText("Signing out...");
-        signOut(auth).then(() => {
-            // Sign-out successful.
-            localStorage.removeItem('token');
-            localStorage.removeItem('uid');
-            setCredential(prev => ({
-                ...prev,
-                accessToken: null,
-                uid: null,
-                email: null,
-                isAdmin: false,
-                displayName: null,
-                emailVerified: null,
-                isAnonymous: null,
-                phoneNumber: null,
-                photoURL: null
-            }))
-        }).catch((error) => {
-            // An error happened.
-        }).finally(() => {
-            setIsLoading(false);
-            setLoadingText("");
-            // The sign-out process is complete.
-        });
+        setTimeout(() => {
+            signOut(auth).then(() => {
+                // Sign-out successful.
+                localStorage.removeItem('token');
+                localStorage.removeItem('uid');
+                setCredential(prev => ({
+                    ...prev,
+                    accessToken: null,
+                    uid: null,
+                    email: null,
+                    isAdmin: false,
+                    displayName: null,
+                    emailVerified: null,
+                    isAnonymous: null,
+                    phoneNumber: null,
+                    photoURL: null
+                }))
+            }).catch((error) => {
+                // An error happened.
+            }).finally(() => {
+                setIsLoading(false);
+                setLoadingText("");
+                // The sign-out process is complete.
+            });
+        }, 500);
     }
 
 
