@@ -7,7 +7,7 @@ import { Image } from '@nextui-org/image'
 import NextImage from 'next/image'
 import Link from 'next/link'
 
-const VideoCard = ({ item }) => {
+const VideoCard = ({ item, shareUrl }) => {
     return (
         <Card as={"li"}>
             <CardBody className="overflow-hidden">
@@ -16,12 +16,13 @@ const VideoCard = ({ item }) => {
                         wrapper: "!max-w-full aspect-[9/13] *:h-full",
                         img: "w-full h-full object-cover object-center",
                     }}
+                    priority
                     as={NextImage}
                     isBlurred
                     isZoomed
                     width={900}
                     height={1300}
-                    src={item?.img}
+                    src={item?.image}
                     alt={item?.title}
                 />
                 <div>
@@ -39,8 +40,9 @@ const VideoCard = ({ item }) => {
                                     </Button>
                                 </DropdownTrigger>
                                 <DropdownMenu aria-label="Video Actions">
+                                    <DropdownItem key="wishlist">Add Favorite</DropdownItem>
+                                    <DropdownItem key="copy" onClick={() => shareUrl(item?.url)}>Copy link</DropdownItem>
                                     <DropdownItem key="share">Share link</DropdownItem>
-                                    <DropdownItem key="copy">Copy link</DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
                         </div>

@@ -3,78 +3,79 @@ import { Suspense } from "react"
 import CategorySwiper from "@/components/catlogSwiper"
 import VideoCardsSection from "@/components/videoCardsSection"
 import { TrendingIcon, VideoAddIcon } from "@/components/icons"
+import useDataWithFilterAndLimit from "@/hooks/useDataWithFilterAndLimit"
+import Loading from "@/app/(page)/loading"
+import { Skeleton } from "@nextui-org/skeleton"
 
 const HomePage = () => {
-    const content = [
-        {
-            id: '1',
-            title: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eaque nulla ab eveniet incidunt",
-            img: "https://source.unsplash.com/random/900x1300/?city,night",
-            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-        },
-        {
-            id: '2',
-            title: "adipisicing elit. Eaque nulla ab eveniet incidunt",
-            img: "https://source.unsplash.com/random/900x1300/?city,day",
-            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-        },
-        {
-            id: '3',
-            title: "adipisicing elit. Eaque nulla ab eveniet incidunt",
-            img: "https://source.unsplash.com/random/900x1300/?road,day",
-            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-        },
-        {
-            id: '4',
-            title: "adipisicing elit. Eaque nulla ab eveniet incidunt",
-            img: "https://source.unsplash.com/random/900x1300/?road,night",
-            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-        },
-        {
-            id: '5',
-            title: "adipisicing elit. Eaque nulla ab eveniet incidunt",
-            img: "https://source.unsplash.com/random/900x1300/?nature,night",
-            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-        },
-        {
-            id: '6',
-            title: "adipisicing elit. Eaque nulla ab eveniet incidunt",
-            img: "https://source.unsplash.com/random/900x1300/?nature,day",
-            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-        },
-        {
-            id: '7',
-            title: "adipisicing elit. Eaque nulla ab eveniet incidunt",
-            img: "https://source.unsplash.com/random/900x1300/?nature,road",
-            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-        },
-        {
-            id: '8',
-            title: "adipisicing elit. Eaque nulla ab eveniet incidunt",
-            img: "https://source.unsplash.com/random/900x1300/?day,road",
-            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-        },
-    ]
+    const { data, isLoading, error } = useDataWithFilterAndLimit();
     return (
         <>
-            <Suspense fallback={"CategorySwiper loading..."}>
-                <div className="sticky top-0 z-30 bg-white dark:bg-zinc-950 pb-2">
+            <Suspense fallback={
+                <div className="flex overflow-hidden gap-2 items-center pt-12 pb-4">
+                    <Skeleton className="rounded-lg shrink-0">
+                        <div className="h-8 w-32 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                    <Skeleton className="rounded-lg shrink-0">
+                        <div className="h-8 w-16 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                    <Skeleton className="rounded-lg shrink-0">
+                        <div className="h-8 w-28 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                    <Skeleton className="rounded-lg shrink-0">
+                        <div className="h-8 w-36 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                    <Skeleton className="rounded-lg shrink-0">
+                        <div className="h-8 w-24 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                    <Skeleton className="rounded-lg shrink-0">
+                        <div className="h-8 w-52 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                    <Skeleton className="rounded-lg shrink-0">
+                        <div className="h-8 w-14 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                    <Skeleton className="rounded-lg shrink-0">
+                        <div className="h-8 w-40 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                    <Skeleton className="rounded-lg shrink-0">
+                        <div className="h-8 w-16 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                    <Skeleton className="rounded-lg shrink-0">
+                        <div className="h-8 w-20 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                    <Skeleton className="rounded-lg shrink-0">
+                        <div className="h-8 w-16 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                </div>
+            }>
+                <div
+                    className="bg-white dark:bg-zinc-950 pb-2">
                     <CategorySwiper />
                 </div>
             </Suspense>
-            <Suspense fallback={"VideoCardsSection loading..."}>
-                <VideoCardsSection content={content} sectionName={{
-                    icon: VideoAddIcon,
-                    title: "New Shorts",
-                    url: "/new-shorts"
-                }} />
+            <Suspense fallback={<Loading />}>
+                {
+                    isLoading ?
+                        <Loading />
+                        :
+                        <VideoCardsSection content={data} sectionName={{
+                            icon: VideoAddIcon,
+                            title: "New Shorts",
+                            url: "/new-shorts"
+                        }} />
+                }
             </Suspense>
-            <Suspense fallback={"VideoCardsSection loading..."}>
-                <VideoCardsSection className={"pt-8 pb-4"} content={content} sectionName={{
-                    icon: TrendingIcon,
-                    title: "All Trending",
-                    url: "/trending"
-                }} />
+            <Suspense fallback={<Loading />}>
+                {
+                    isLoading ?
+                        <Loading />
+                        :
+                        <VideoCardsSection className={"pt-8 pb-4"} content={data} sectionName={{
+                            icon: TrendingIcon,
+                            title: "All Trending",
+                            url: "/trending"
+                        }} />
+                }
             </Suspense>
         </>
     )
