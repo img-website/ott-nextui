@@ -4,12 +4,13 @@ import { db } from '@/app/firebase/firebase';
 import { useAppContext } from '@/context';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
-const UserDetails = () => {
+const UserDetails = ({change}) => {
     const { setCredential } = useAppContext();
 
     const [uid, setUid] = React.useState('');
 
     const getUserDetail = async () => {
+        console.log('credential updated')
         try {
             const snapshot = await getDocs(query(collection(db, 'users'), where('uid', '==', uid)));
             const signedInUser = snapshot.docs[0].data();
@@ -22,7 +23,8 @@ const UserDetails = () => {
                 emailVerified: signedInUser?.emailVerified,
                 isAnonymous: signedInUser?.isAnonymous,
                 phoneNumber: signedInUser?.phoneNumber,
-                photoURL: signedInUser?.photoURL
+                photoURL: signedInUser?.photoURL,
+                favoriteVideos: signedInUser?.favoriteVideos
             }))
         } catch (error) {
 
@@ -42,7 +44,7 @@ const UserDetails = () => {
 
     React.useEffect(() => {
         getUserDetail()
-    }, [uid])
+    }, [uid, change])
 }
 
 export default UserDetails

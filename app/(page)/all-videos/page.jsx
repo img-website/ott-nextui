@@ -6,6 +6,7 @@ import Loading from '@/app/(page)/all-videos/loading'
 
 const AllVideosPage = () => {
     const { data, isLoading, error } = useAllActiveMemes();
+    
     return (
         <Suspense fallback={<Loading />}>
             <VideoCardsSection className={"pt-8 pb-4"} content={data} isLoading= {isLoading} error={error} />

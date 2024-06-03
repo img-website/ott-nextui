@@ -16,7 +16,8 @@ export function AppWrapper({children}) {
         emailVerified: null,
         isAnonymous: null,
         phoneNumber: null,
-        photoURL: null
+        photoURL: null,
+        favoriteVideos : []
     });
     
     

@@ -2,7 +2,7 @@
 import { Card } from '@nextui-org/card'
 import { Skeleton } from '@nextui-org/skeleton'
 
-const Loading = () => {
+const Loadingss = () => {
 
     return (
         <>
@@ -43,4 +43,4 @@ const Loading = () => {
     )
 }
 
-export default Loading
+export default Loadingss
