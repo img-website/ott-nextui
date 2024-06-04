@@ -1,17 +1,17 @@
 "use client"
 import { Suspense } from "react"
-import CategorySwiper from "@/components/catlogSwiper"
+// import CategorySwiper from "@/components/catlogSwiper"
 import VideoCardsSection from "@/components/videoCardsSection"
 import { TrendingIcon, VideoAddIcon } from "@/components/icons"
-import useDataWithFilterAndLimit from "@/hooks/useDataWithFilterAndLimit"
+import useAllActiveVideosByNew from "@/hooks/useAllActiveVideosByNew";
 import Loading from "@/app/(page)/loading"
-import { Skeleton } from "@nextui-org/skeleton"
+// import { Skeleton } from "@nextui-org/skeleton"
 
 const HomePage = () => {
-    const { data, isLoading, error } = useDataWithFilterAndLimit();
+    const { data:newData, isLoading:isLoadingNew, error:errorNew } = useAllActiveVideosByNew(8);
     return (
         <>
-            <Suspense fallback={
+            {/* <Suspense fallback={
                 <div className="flex overflow-hidden gap-2 items-center pt-12 pb-4">
                     <Skeleton className="rounded-lg shrink-0">
                         <div className="h-8 w-32 rounded-lg bg-default-300"></div>
@@ -52,31 +52,31 @@ const HomePage = () => {
                     className="bg-white dark:bg-zinc-950 pb-2">
                     <CategorySwiper />
                 </div>
-            </Suspense>
+            </Suspense> */}
             <Suspense fallback={<Loading />}>
                 {
-                    isLoading ?
+                    isLoadingNew ?
                         <Loading />
                         :
-                        <VideoCardsSection content={data} sectionName={{
+                        <VideoCardsSection content={newData} limit={8} sectionName={{
                             icon: VideoAddIcon,
                             title: "New Shorts",
                             url: "/new-shorts"
                         }} />
                 }
             </Suspense>
-            <Suspense fallback={<Loading />}>
+            {/* <Suspense fallback={<Loading />}>
                 {
                     isLoading ?
                         <Loading />
                         :
-                        <VideoCardsSection className={"pt-8 pb-4"} content={data} sectionName={{
+                        <VideoCardsSection className={"pt-8 pb-4"} content={data} limit={8} sectionName={{
                             icon: TrendingIcon,
                             title: "All Trending",
                             url: "/trending"
                         }} />
                 }
-            </Suspense>
+            </Suspense> */}
         </>
     )
 }

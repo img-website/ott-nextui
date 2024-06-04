@@ -121,7 +121,8 @@ const GoogleLogin = () => {
                     emailVerified: null,
                     isAnonymous: null,
                     phoneNumber: null,
-                    photoURL: null
+                    photoURL: null,
+                    favoriteVideos : []
                 }))
             }).catch((error) => {
                 // An error happened.

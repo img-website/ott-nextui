@@ -6,7 +6,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Button } from "@nextui-org/button";
 import Link from "next/link";
-import { Skeleton } from "@nextui-org/skeleton";
+import Loading from "@/app/(page)/categories/loading";
 
 const CategoriesPage = () => {
     const [videoCategories, setVideoCategories] = useState([]);
@@ -30,19 +30,7 @@ const CategoriesPage = () => {
 
     return (
         isLoading ? (
-            <div className="grid xl:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-3 gap-y-5 py-5">
-                {
-                    Array.from({ length: 12 }).map((_, i) => (
-                        <Card key={i}>
-                            <CardBody>
-                                <Skeleton className="rounded-lg">
-                                    <div className="h-20 w-full rounded-lg bg-default-300"></div>
-                                </Skeleton>
-                            </CardBody>
-                        </Card>
-                    ))
-                }
-            </div>
+            <Loading />
         ) : (
 
             <div className="grid xl:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-3 gap-y-5 py-5">

@@ -7,7 +7,7 @@ import { Card, CardBody } from '@nextui-org/card'
 import { Image } from '@nextui-org/image'
 import NextImage from 'next/image'
 import Link from 'next/link'
-import { addDoc, collection, deleteDoc, doc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore'
+import { collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore'
 import { db } from '@/app/firebase/firebase'
 import { useAppContext } from '@/context'
 import UserDetails from '@/utils/_userDetails'
@@ -16,8 +16,6 @@ const VideoCard = ({ item, shareUrl }) => {
     const [uid, setUid] = useState('')
     const {credential} = useAppContext()
     const [change, setChange] = useState(false)
-
-    console.log('credential', credential)
 
     useEffect(() => {
         const getUid = localStorage.getItem('uid');
@@ -60,7 +58,6 @@ const VideoCard = ({ item, shareUrl }) => {
 
 
     const refreshUserDetails = () => {
-        console.log('credential refreshed')
         return <UserDetails change={change}/>
         
     }
@@ -68,7 +65,6 @@ const VideoCard = ({ item, shareUrl }) => {
 
     const getActiveClassName = (id) => {
         const item = credential?.favoriteVideos?.filter(elem => elem === id)
-        console.log('item favvv', item)
         if (item?.length) {
             return 'Remove from favorites'
         } else {
