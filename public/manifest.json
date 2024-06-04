@@ -1,8 +1,8 @@
 {
-    "id": "3",
-    "name": "OTT Platform",
-    "short_name": "OTT",
-    "description": "This is a next.js 14 app compatible with PWA",
+    "id": "4",
+    "name": "Sambhog - Ek Pyaas",
+    "short_name": "Sambhog",
+    "description": "All Instagram, OYO, WhatsApp, Telegram and All Other Viral Videos of Sambhog",
     "icons": [
         {
             "src": "windows11/SmallTile.scale-100.png",
